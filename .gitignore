@@ -1,6 +1,8 @@
 .venv/
+venv/
 __pycache__/
 .env
+.env.*
 node_modules/
 *.pyc
 data/*.csv
@@ -14,3 +16,9 @@ data/*.csv
 models/*.joblib
 models/*.csv
 models/*.json
+
+# Frontend build
+frontend/dist/
+
+# OS files
+.DS_Store
