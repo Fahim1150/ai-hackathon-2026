@@ -4,8 +4,11 @@ pydantic
 pandas
 numpy
 scikit-learn
+lightgbm
 xgboost
 joblib
 python-dotenv
 pytest
 httpx
+scipy
+pyarrow

@@ -4,11 +4,13 @@ OFFERS = {
     1: {"name": "10% cashback on utility bill", "cost": 30.0},
     2: {"name": "Free data bundle", "cost": 15.0},
     3: {"name": "Cash-out fee waiver", "cost": 20.0},
+    4: {"name": "Referral bonus", "cost": 25.0},
+    5: {"name": "P2P fee waiver", "cost": 10.0},
 }
 MARGIN = 100.0            # BDT value of one incremental transaction (assumption)
 FEATURES = [
-    "monthly_trans_count", "avg_trans_amount", "days_since_last_trans",
-    "tenure_months", "cashout_ratio", "offers_last_30d",
+    "monthly_txn_count", "avg_txn_amount", "last_active_days",
+    "tenure_months", "cashout_share", "bill_pay_history", "offers_last_30d",
 ]
 GROUP_COLS = ["region", "age_band"]   # NOT model features; used only for fairness checks
 PROPENSITY = 1 / len(OFFERS)          # randomized experiment: equal chance per arm

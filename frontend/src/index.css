@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+:root {
+  --upay-green: #22c55e;
+  --upay-navy: #0f172a;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #f8fafc;
+}
