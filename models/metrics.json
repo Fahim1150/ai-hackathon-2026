@@ -1,0 +1,97 @@
+{
+  "policies": {
+    "No campaign": {
+      "profit_per_user_bdt": 26.09,
+      "contact_rate": 0.0,
+      "incremental_vs_no_campaign": 0.0
+    },
+    "Blast offer 1 to everyone": {
+      "profit_per_user_bdt": 22.4,
+      "contact_rate": 1.0,
+      "incremental_vs_no_campaign": -3.69
+    },
+    "Blast offer 2 to everyone": {
+      "profit_per_user_bdt": 22.33,
+      "contact_rate": 1.0,
+      "incremental_vs_no_campaign": -3.76
+    },
+    "Blast offer 3 to everyone": {
+      "profit_per_user_bdt": 20.2,
+      "contact_rate": 1.0,
+      "incremental_vs_no_campaign": -5.89
+    },
+    "Random offer": {
+      "profit_per_user_bdt": 22.42,
+      "contact_rate": 0.746,
+      "incremental_vs_no_campaign": -3.67
+    },
+    "Response model (ignores baseline)": {
+      "profit_per_user_bdt": 27.09,
+      "contact_rate": 1.0,
+      "incremental_vs_no_campaign": 1.0
+    },
+    "Uplift model": {
+      "profit_per_user_bdt": 28.81,
+      "contact_rate": 0.657,
+      "incremental_vs_no_campaign": 2.72
+    },
+    "Uplift model + business rules": {
+      "profit_per_user_bdt": 28.92,
+      "contact_rate": 0.588,
+      "incremental_vs_no_campaign": 2.83
+    }
+  },
+  "qini_auc": {
+    "10% cashback on utility bill": {
+      "model": 65.413,
+      "random": 5.831
+    },
+    "Free data bundle": {
+      "model": 8.295,
+      "random": 8.694
+    },
+    "Cash-out fee waiver": {
+      "model": 48.769,
+      "random": 2.762
+    }
+  },
+  "fairness": {
+    "region": {
+      "groups": {
+        "rural": {
+          "contact_rate": 0.623,
+          "profit_per_user_bdt": 24.24,
+          "n": 3653
+        },
+        "urban": {
+          "contact_rate": 0.565,
+          "profit_per_user_bdt": 32.12,
+          "n": 5347
+        }
+      },
+      "contact_rate_ratio_min_over_max": 0.907
+    },
+    "age_band": {
+      "groups": {
+        "18-25": {
+          "contact_rate": 0.592,
+          "profit_per_user_bdt": 31.66,
+          "n": 2709
+        },
+        "26-40": {
+          "contact_rate": 0.586,
+          "profit_per_user_bdt": 28.32,
+          "n": 4026
+        },
+        "41+": {
+          "contact_rate": 0.587,
+          "profit_per_user_bdt": 26.71,
+          "n": 2265
+        }
+      },
+      "contact_rate_ratio_min_over_max": 0.99
+    }
+  },
+  "test_rows": 9000,
+  "note": "Synthetic randomized data; effects were planted by the generator. Values are IPW estimates."
+}

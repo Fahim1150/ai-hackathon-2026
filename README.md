@@ -1,4 +1,4 @@
-# <Project Name>
+# CampaignIQ - Uplift & Next-Best-Offer Engine
 
 > One-line pitch. Built for AI DEV FEST 2026 – AI Hackathon (DIU CPC × upay).
 

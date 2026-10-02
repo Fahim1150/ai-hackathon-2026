@@ -4,6 +4,8 @@ pydantic
 pandas
 numpy
 scikit-learn
+xgboost
+joblib
 python-dotenv
 pytest
 httpx
