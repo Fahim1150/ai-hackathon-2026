@@ -9,3 +9,8 @@ data/*.csv
 *plan*.md
 *PLAN*.md
 *Plan*.md
+
+# Model artifacts (generated, not tracked)
+models/*.joblib
+models/*.csv
+models/*.json
