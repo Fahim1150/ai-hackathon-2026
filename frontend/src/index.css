@@ -1,12 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --upay-green: #22c55e;
-  --upay-navy: #0f172a;
+  --upay-yellow: #F5A623;
+  --upay-navy: #1B2A4A;
+  --upay-dark: #0F1B2D;
+  --upay-light: #F8FAFC;
+  --upay-green: #10B981;
+  --upay-red: #EF4444;
+  --upay-blue: #3B82F6;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: #f8fafc;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--upay-dark);
+  color: #E2E8F0;
+  min-height: 100vh;
 }
+
+* { box-sizing: border-box; }
