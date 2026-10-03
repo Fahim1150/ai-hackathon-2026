@@ -22,3 +22,8 @@ frontend/dist/
 
 # OS files
 .DS_Store
+
+# Keep lightweight inference results needed by the Vercel deployment
+!models/test_predictions.csv
+!models/overview_stats.json
+!models/fairness_audit.json
