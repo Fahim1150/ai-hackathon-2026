@@ -3,6 +3,8 @@
 **Dormant-to-Active Lifecycle, Incremental Uplift & Gemini Copilot Engine**  
 *Built for AI DEV FEST 2026 – AI Hackathon (Track 04: Growth & Campaign Intelligence / DIU CPC × upay)*
 
+🌐 **Live Demo:** [upay ActivateAI Dashboard](https://ai-hackathon-2026-ruddy.vercel.app/)
+
 ---
 
 ## 📌 1. Project Overview
