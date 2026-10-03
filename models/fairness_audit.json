@@ -1,0 +1,54 @@
+{
+  "lifecycle_stage": {
+    "groups": {
+      "At-Risk Churner": {
+        "count": 692,
+        "mean_uplift": 0.0331,
+        "persuadable_rate": 0.2905,
+        "mean_fatigue": 34.3
+      },
+      "One-Hit Wonder": {
+        "count": 399,
+        "mean_uplift": 0.0064,
+        "persuadable_rate": 0.0251,
+        "mean_fatigue": 32.1
+      },
+      "Payday Cash-Outer": {
+        "count": 502,
+        "mean_uplift": 0.1404,
+        "persuadable_rate": 0.7012,
+        "mean_fatigue": 34.7
+      },
+      "Sign-Up Drop-off": {
+        "count": 407,
+        "mean_uplift": 0.0049,
+        "persuadable_rate": 0.0737,
+        "mean_fatigue": 31.9
+      }
+    },
+    "min_max_persuadable_ratio": 0.036
+  },
+  "wallet_type": {
+    "groups": {
+      "Primary": {
+        "count": 847,
+        "mean_uplift": 0.0271,
+        "persuadable_rate": 0.1983,
+        "mean_fatigue": 32.8
+      },
+      "Remittance": {
+        "count": 406,
+        "mean_uplift": 0.0304,
+        "persuadable_rate": 0.2414,
+        "mean_fatigue": 34.4
+      },
+      "Salary": {
+        "count": 747,
+        "mean_uplift": 0.0838,
+        "persuadable_rate": 0.4378,
+        "mean_fatigue": 33.7
+      }
+    },
+    "min_max_persuadable_ratio": 0.453
+  }
+}
