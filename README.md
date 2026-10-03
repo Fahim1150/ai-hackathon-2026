@@ -57,57 +57,55 @@ This project strictly adheres to 7 core Responsible AI guardrails (enforced via 
 
 ---
 
-## ⚙️ 5. Installation & Setup
+## ⚙️ 5. Installation, Deployment & Setup
 
-### Prerequisites
-*   macOS / Linux (zsh/bash)
-*   Python 3.13+
-*   Node.js 20+
+We intentionally ignore heavy machine learning models (`*.joblib`) and large data files (`data/*.csv`) in our `.gitignore` to keep the repository fast and secure. 
 
-### Step 1: Clone & Environment Setup
+Depending on your goal, choose **one** of the 3 deployment paths below:
+
+### Path A: Docker (Recommended for Teammates & Judges)
+Docker will automatically generate the 10,000 synthetic users, train the LightGBM models, and spin up both servers inside containers. You don't need to worry about missing files!
+
 ```bash
 git clone https://github.com/Fahim1150/ai-hackathon-2026.git
 cd ai-hackathon-2026
 
-# Setup Python Virtual Environment
+# Set up environment variables
+cp .env.example .env
+# Add your GEMINI_API_KEY to .env (If empty, it falls back to deterministic offline templates)
+
+# Build and run the entire stack
+docker-compose up --build
+```
+👉 Access the dashboard at: **http://localhost:5173**
+
+### Path B: 1-Click Vercel (For Public Web Hosting)
+We configured the API to run as Serverless Functions and pre-committed the lightweight inference results.
+1. Go to [Vercel](https://vercel.com/) and click **Add New Project**.
+2. Import this GitHub repository.
+3. Vercel will automatically read `vercel.json` and deploy both the React frontend and the Python backend on the same domain for free.
+
+### Path C: Manual Local Run (For Active Development)
+If you are developing locally, you must manually run the ML pipelines first because the heavy model files are hidden by `.gitignore`.
+
+```bash
+# 1. Setup Virtual Environment
 python3 -m venv .venv
 source .venv/bin/activate
 pip install pandas numpy scikit-learn lightgbm shap scipy fastapi "uvicorn[standard]" pytest httpx google-genai pydantic python-dotenv
-```
 
-### Step 2: Configure Gemini (Optional but Recommended)
-```bash
-cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY. 
-# If left empty, the app uses the built-in Offline Deterministic Fallback.
-```
-
-### Step 3: Generate Data & Train Models
-Because no real user data is tracked in Git, you must generate the synthetic dataset and train the ML models locally:
-```bash
-# 1. Generate 10k synthetic upay users (train & test sets)
+# 2. Generate Data & Train Models (Crucial Step!)
 python backend/data_generator.py
-
-# 2. Train LightGBM T-Learner, compute SHAP, and score users
 python backend/ml_engine.py
-```
 
-### Step 4: Run the Backend & Frontend Servers
-Open two separate terminal windows:
-
-**Terminal 1 (FastAPI Backend):**
-```bash
-source .venv/bin/activate
+# 3. Run FastAPI Backend (Terminal 1)
 uvicorn backend.main:app --host 0.0.0.0 --port 8000
-```
 
-**Terminal 2 (React Frontend):**
-```bash
+# 4. Run React Frontend (Terminal 2)
 cd frontend
 npm install
 npm run dev -- --host 0.0.0.0 --port 5173
 ```
-👉 Access the UI at: **http://localhost:5173**
 
 ---
 
