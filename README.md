@@ -1,106 +1,125 @@
-# CampaignIQ - Uplift & Next-Best-Offer Engine
+# upay ActivateAI 🚀
 
-> AI-driven campaign intelligence engine. Built for AI DEV FEST 2026 – AI Hackathon (DIU CPC × upay).
+**Dormant-to-Active Lifecycle, Incremental Uplift & Gemini Copilot Engine**  
+*Built for AI DEV FEST 2026 – AI Hackathon (Track 04: Growth & Campaign Intelligence / DIU CPC × upay)*
 
-## 1. Project Overview
-- **User:** upay Marketing & Growth Managers
-- **Problem:** Untargeted campaigns waste budget on customers who would transact anyway (Sure Things) or those who react negatively to offers (Sleeping Dogs). The baseline is a simple "Response Model" that just targets likely converters.
-- **Solution:** We built **CampaignIQ**, which uses 100% synthetic transaction and treatment/control data to rank customers and offers by **incremental uplift**.
-- **Purpose / impact metric:** Maximize incremental conversions under budget, measured by **Cost per Incremental Transaction** and **Qini/AUUC** on a held-out test set.
+---
 
-## 2. Features
-| Feature | How AI is used |
-|---|---|
-| **Uplift Modeling (T-learner)** | LightGBM classifiers model P(conversion\|treatment) vs P(conversion\|control) to isolate the true effect of each offer. |
-| **Next-Best-Offer Ranking** | Ranks 5 different offers per customer based on highest predicted incremental ROI. |
-| **Explainable AI (SHAP)** | Extracts SHAP feature contributions (treatment minus control) to explain *why* an offer was recommended in plain language. |
-| **Fairness Check** | Compares contact rates and average uplift across regions and age bands to ensure demographic parity. |
-| **Budget Optimizer** | Greedy knapsack approximation allocates fixed budget to maximize incremental profit vs an equal-split baseline. |
-| **Fatigue Monitor** | Business rules and diminishing return heuristics prevent over-contacting (blocks users with 3+ offers in 30 days). |
-| **Experiment Intelligence** | Compares two campaign variants via A/B test statistics (p-value, confidence intervals, lift) to guide next actions. |
+## 📌 1. Project Overview
 
-## 3. Technology Stack
-- **Backend:** Python 3.12, FastAPI, LightGBM (T-learner uplift), XGBoost (legacy), Scikit-Learn, Pandas, SciPy.
-- **Frontend:** React 18, Vite, Tailwind CSS v4, Recharts, Lucide React, React Router.
-- **Data:** 100% Synthetic data generator (`generate_synthetic.py`) outputting Parquet/CSV.
+**The Business Problem:**  
+In Bangladesh's MFS (Mobile Financial Services) sector, competitors heavily dominate the peer-to-peer (P2P) "Send Money" market due to network effects. Consequently, many registered **upay** users become dormant or cash out 100% of their salary on payday. 
 
-## 4. Requirements
-- Python 3.11+
-- Node.js 20+
-- Docker and docker-compose (optional, for containerized run)
+**The Strategy:**  
+"Solo-utility" transactions (Utility Bill Pay, Mobile Recharge, Super Shop QR, DPS savings) do **not** require the recipient to be an active upay user. By building habits around these specific features, we can bypass the competitor's network effect.
 
-## 5. Installation & Setup
+**The Solution:**  
+**upay ActivateAI** is an end-to-end intelligence engine that maximizes Monthly Active Users (MAU) under a fixed marketing budget. Instead of predicting *who will transact* (which wastes budget on "Sure Things"), it uses **Incremental Uplift Modeling** (T-Learner LightGBM) to predict *who will activate SPECIFICALLY because of the offer* (Persuadables). It then uses **Gemini 2.5 Flash** to generate highly personalized, bilingual SMS nudges grounded in SHAP explainability drivers.
+
+---
+
+## ✨ 2. Core Features (The 4-Tab Dashboard)
+
+1. **📊 Dormancy Funnel & MAU Growth Simulator**  
+   Interactive sandbox for Growth Managers. Adjust the Reactivation Budget and Fatigue Caps to instantly simulate expected MAU growth. Compares the AI's uplift-targeted allocation against a traditional "Mass Promo Blast" baseline. Includes **Gemini-generated Experiment Intelligence** to recommend next A/B tests.
+
+2. **📈 Solo-Utility Habit & Uplift Explorer**  
+   Visualizes the 4 Uplift Quadrants (*Persuadables*, *Sure Things*, *Lost Causes*, *Sleeping Dogs*). Maps the optimal solo-utility offer (Recharge, Bill Pay, etc.) based on historical affinity and analyzes uplift responsiveness across different lifecycle stages (e.g., *Payday Cash-Outer* vs *One-Hit Wonder*).
+
+3. **🎯 Customer 360, SHAP & Gemini Copywriter**  
+   Drill down into individual synthetic profiles. Displays the precise **SHAP (SHapley Additive exPlanations)** drivers for why a user scored a specific uplift. Leverages **Gemini 2.5 Flash** to instantly draft English and Bangla SMS copy customized to the user's dormancy stage and SHAP drivers.
+
+4. **🛡️ Responsible AI & Human Oversight**  
+   Enforces strict guardrails. Includes a Fairness Audit across wallet types (Salary/Primary/Remittance) and lifecycle stages. Enforces a **Human Reviewer** sign-off gate before any campaign can transition from draft to approved.
+
+---
+
+## 🛠️ 3. Technology Stack
+
+*   **Data Science & ML:** Python 3.13, Pandas, Scikit-learn, LightGBM, SHAP, SciPy.
+*   **Backend API:** FastAPI, Uvicorn, Pydantic, Pytest.
+*   **Generative AI:** Official `google-genai` SDK (Gemini 2.5 Flash) with strict JSON Structured Outputs.
+*   **Frontend UI:** React 18, Vite, Tailwind CSS v4, Recharts, Lucide-React.
+*   **Data:** 100% Synthetic data generated in-memory (No real PII).
+
+---
+
+## 🚦 4. Strict Architecture Guardrails
+
+This project strictly adheres to 7 core Responsible AI guardrails (enforced via `AGENTS.md`):
+1. **Separation of Concerns:** Data prep, ML inference, and API serving are strictly isolated.
+2. **Deterministic Targeting:** Budget caps, offer eligibility, and uplift cutoffs are hard-coded business rules (never LLM-driven).
+3. **No Financial Decisions in LLMs:** Gemini is used *strictly* as a translation and copywriting engine based on deterministic SHAP inputs.
+4. **Traceability:** Every recommendation requires top-3 SHAP attributions.
+5. **Human-in-the-Loop:** No campaign launches without human approval logs (Reviewer Name, Timestamp, Budget).
+6. **Deterministic Fallback:** If the Gemini API key is missing or the network is offline, the system gracefully degrades to a template-based fallback (marked as `Offline Deterministic Fallback`) without crashing.
+7. **Train/Test Isolation:** Strictly enforced zero `customer_id` overlap between training and inference sets.
+
+---
+
+## ⚙️ 5. Installation & Setup
+
+### Prerequisites
+*   macOS / Linux (zsh/bash)
+*   Python 3.13+
+*   Node.js 20+
+
+### Step 1: Clone & Environment Setup
 ```bash
-# Clone the repository
-git clone <repo-url> && cd ai-hackathon-2026
+git clone https://github.com/Fahim1150/ai-hackathon-2026.git
+cd ai-hackathon-2026
 
-# 1. Setup Backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r backend/requirements.txt
+# Setup Python Virtual Environment
+python3 -m venv .venv
+source .venv/bin/activate
+pip install pandas numpy scikit-learn lightgbm shap scipy fastapi "uvicorn[standard]" pytest httpx google-genai pydantic python-dotenv
+```
+
+### Step 2: Configure Gemini (Optional but Recommended)
+```bash
 cp .env.example .env
+# Edit .env and add your GEMINI_API_KEY. 
+# If left empty, the app uses the built-in Offline Deterministic Fallback.
+```
 
-# 2. Generate Synthetic Data (50k users, planted effects)
-python data/generate_synthetic.py
+### Step 3: Generate Data & Train Models
+Because no real user data is tracked in Git, you must generate the synthetic dataset and train the ML models locally:
+```bash
+# 1. Generate 10k synthetic upay users (train & test sets)
+python backend/data_generator.py
 
-# 3. Train the Uplift Models
-python -m backend.app.train
+# 2. Train LightGBM T-Learner, compute SHAP, and score users
+python backend/ml_engine.py
+```
 
-# 4. Setup Frontend
+### Step 4: Run the Backend & Frontend Servers
+Open two separate terminal windows:
+
+**Terminal 1 (FastAPI Backend):**
+```bash
+source .venv/bin/activate
+uvicorn backend.main:app --host 0.0.0.0 --port 8000
+```
+
+**Terminal 2 (React Frontend):**
+```bash
 cd frontend
 npm install
-npm run build
-cd ..
+npm run dev -- --host 0.0.0.0 --port 5173
 ```
+👉 Access the UI at: **http://localhost:5173**
 
-## 6. Run & Build
+---
 
-### Option A: Local Development
+## 🧪 6. Testing
+
+The backend includes a comprehensive 25-test Pytest suite that verifies Train/Test isolation, uplift score bounds, budget constraint adherence, Gemini fallback resilience, and endpoint health.
+
 ```bash
-# Terminal 1: Backend
-uvicorn backend.app.main:app --reload --port 8000
-
-# Terminal 2: Frontend
-cd frontend
-npm run dev
+source .venv/bin/activate
+python -m pytest backend/test_app.py -v
 ```
 
-### Option B: Docker Compose
-```bash
-docker-compose up --build
-```
-Access the application at `http://localhost:5173`.
+---
 
-## 7. Live Deployment
-Can be deployed to free hosts like Render (for backend) and Vercel/Netlify (for frontend). 
-- Use the `backend/Dockerfile` for the API.
-- Use `frontend/Dockerfile` or Vercel's automatic React/Vite deployment for the UI.
-
-## 8. Testing
-```bash
-# Run pytest for backend endpoints and business rules
-pytest backend/tests -v
-```
-
-## 9. Architecture Diagram
-```mermaid
-flowchart LR
-    A[Synthetic Data] --> B(LightGBM Uplift Engine)
-    B --> C{Rules Engine}
-    C --> D[FastAPI Backend]
-    D --> E[React Dashboard]
-    E -->|Human Approval| F[Launch Campaign]
-```
-
-## 10. Data & Responsible AI
-- **100% Synthetic Data:** See `docs/SYNTHETIC_ASSUMPTIONS.md` for details on how effects (Persuadables, Sleeping Dogs, etc.) were planted. No real upay PII was used.
-- **Explainability:** Every single recommendation shows its SHAP-derived reasons in plain English.
-- **Human-in-the-Loop:** The Budget Optimizer requires a human Growth Manager to click "Approve" before any campaign is finalized. No autonomous consequential decisions are made.
-- **Fairness:** The `/fairness` endpoint and UI panel actively track selection rates across hidden attributes (Region, Age) to prevent algorithmic bias.
-- **AI Tools Used:** Documented fully in `docs/AI_USAGE_LOG.md`.
-
-## 11. Post-Hackathon Validation Plan
-To deploy CampaignIQ in production at upay:
-1. **Data Integration:** Map real transaction history (txn_count, avg_amount) and demographics from the upay data lake.
-2. **RCT Rollout:** Run a 5% holdout randomized control trial (RCT) with real offers to gather unbiased training data.
-3. **Retrain:** Feed real RCT data into the LightGBM uplift pipeline.
-4. **Governed Deployment:** Shadow mode for 1 month, followed by phased rollout.
+*Designed for the upay Growth & Campaign Intelligence Track.*
