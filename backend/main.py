@@ -47,8 +47,10 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 # Data loading (lazy singleton)
 # ---------------------------------------------------------------------------
-MODELS_DIR = pathlib.Path("models")
+BASE_DIR = pathlib.Path(__file__).parent.parent
+MODELS_DIR = BASE_DIR / "models"
 _cache: dict[str, Any] = {}
+
 
 
 def _load_predictions() -> pd.DataFrame:
