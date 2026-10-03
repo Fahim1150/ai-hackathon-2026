@@ -1,9 +1,9 @@
 # AI Usage Log (judges may request this)
-| Date/time | Tool/model | What for | Notes |
-|---|---|---|---|
-| 2026-10-02 22:46 | Google Antigravity (Claude Opus 4.6) | Full project build: data generation, ML models, backend API, frontend UI, docs, Docker | Agentic coding assistant used for code generation, testing, and documentation. All code was reviewed and validated by the developer. |
-| 2026-10-02 22:46 | LightGBM 4.x | T-learner uplift model: one classifier per treatment arm | Trained on 100% synthetic data. No real PII. |
-| 2026-10-02 22:46 | XGBoost (legacy) | Original T-learner implementation (retained for comparison) | Replaced by LightGBM as primary model. |
-| 2026-10-02 22:46 | SHAP (via LightGBM built-in) | Feature contribution explanations for uplift predictions | Used to generate plain-language reasons for each recommendation. |
-| 2026-10-02 22:46 | scikit-learn | Train/test split, baseline response model | Standard ML utilities. |
-| 2026-10-02 22:46 | SciPy | Statistical tests for experiment comparison (t-test, confidence intervals) | Used in /experiments/compare endpoint. |
+| Tool/model | What for | Notes |
+|---|---|---|
+| Google Antigravity (Claude Opus 4.6) | Coding assistant: data generation, ML pipeline, backend API, frontend UI, docs, Docker | All code reviewed and validated by the team. |
+| Claude (Anthropic) | Pitch slide deck and repo cleanup | Content checked against repo files and metrics. |
+| Gemini 2.5 Flash (runtime) | Bilingual SMS copy and experiment summaries in the product | Receives only synthetic structured summaries; never makes targeting decisions. |
+| LightGBM, SHAP, scikit-learn, SciPy | T-Learner uplift model, explanations, utilities | Trained on 100% synthetic data. |
+
+Replace or extend this table with your real timestamps and any other tools you used.

@@ -113,7 +113,7 @@ npm run dev -- --host 0.0.0.0 --port 5173
 
 ## 🧪 6. Testing
 
-The backend includes a comprehensive 25-test Pytest suite that verifies Train/Test isolation, uplift score bounds, budget constraint adherence, Gemini fallback resilience, and endpoint health.
+The backend includes a 25-test Pytest suite (run `python backend/data_generator.py` first) that verifies Train/Test isolation, uplift score bounds, budget constraint adherence, Gemini fallback resilience, and endpoint health.
 
 ```bash
 source .venv/bin/activate
