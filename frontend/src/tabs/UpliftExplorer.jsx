@@ -22,14 +22,35 @@ export default function UpliftExplorer() {
   return (
     <div className="space-y-6">
       {/* Validation Metrics Bar */}
-      <div className="bg-slate-800/40 rounded-xl p-4 border border-slate-700/50 flex flex-wrap gap-6 justify-center">
-        {Object.entries(metrics).map(([k, v]) => (
-          <div key={k} className="text-center">
-            <p className="text-xl font-bold" style={{ color: 'var(--upay-yellow)' }}>{typeof v === 'number' ? v.toFixed(4) : v}</p>
-            <p className="text-xs text-slate-400">{k.replace(/_/g, ' ').toUpperCase()}</p>
-          </div>
-        ))}
+      <div className="bg-slate-800/40 rounded-xl p-4 border border-slate-700/50">
+        <h3 className="text-sm font-semibold text-white mb-4 text-center">T-Learner Validation (95% CI via Bootstrap)</h3>
+        <div className="flex flex-wrap gap-6 justify-center">
+          {metrics.t_learner && Object.entries(metrics.t_learner).map(([k, v]) => (
+            <div key={k} className="text-center">
+              <p className="text-xl font-bold" style={{ color: 'var(--upay-yellow)' }}>
+                {v.mean.toFixed(4)}
+              </p>
+              <p className="text-[10px] text-slate-500 mb-1">[{v.ci_lower.toFixed(3)} - {v.ci_upper.toFixed(3)}]</p>
+              <p className="text-xs text-slate-400">{k.replace(/_/g, ' ').toUpperCase()}</p>
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* OPE Metrics Bar */}
+      {data.ope_doubly_robust && (
+        <div className="bg-emerald-950/20 rounded-xl p-4 border border-emerald-900/30">
+          <h3 className="text-sm font-semibold text-emerald-400 mb-4 text-center">Doubly Robust Off-Policy Evaluation</h3>
+          <div className="flex flex-wrap gap-6 justify-center">
+            {Object.entries(data.ope_doubly_robust).map(([k, v]) => (
+              <div key={k} className="text-center">
+                <p className="text-lg font-bold text-emerald-300">{(v * 100).toFixed(2)}%</p>
+                <p className="text-xs text-slate-400">{k.replace(/_/g, ' ').toUpperCase()}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Quadrant Pie */}

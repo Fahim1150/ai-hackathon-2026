@@ -24,7 +24,7 @@ export default function ResponsibleAI() {
     if (!name.trim()) return;
     setSubmitting(true);
     try {
-      const r = await approveCampaign({ reviewer_name: name, budget_bdt: +budgetInput, notes });
+      const r = await approveCampaign({ admin_user: name, allocated_budget: +budgetInput, notes });
       setApprovals(prev => [r, ...prev]);
       setName(''); setNotes('');
     } catch (e) { console.error(e); }
@@ -164,8 +164,8 @@ export default function ResponsibleAI() {
               <div key={i} className="bg-emerald-950/30 border border-emerald-900/40 rounded-lg p-3 flex items-center gap-4">
                 <CheckCircle size={16} className="text-emerald-400 shrink-0" />
                 <div className="text-xs text-emerald-300">
-                  <span className="font-semibold">{a.campaign_id}</span> approved by <span className="font-semibold">{a.reviewer_name}</span>
-                  {' '} — {a.budget_bdt.toLocaleString()} BDT — {new Date(a.timestamp).toLocaleString()}
+                  <span className="font-semibold">{a.campaign_id}</span> approved by <span className="font-semibold">{a.admin_user}</span>
+                  {' '} — {a.allocated_budget.toLocaleString()} BDT — {new Date(a.timestamp).toLocaleString()}
                   {a.notes && <span className="text-emerald-400/60"> — "{a.notes}"</span>}
                 </div>
               </div>

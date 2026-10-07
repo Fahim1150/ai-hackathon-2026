@@ -99,56 +99,50 @@ export default function DormancyFunnel() {
         </div>
       </div>
 
-      {/* Side-by-side Comparison */}
-      {result && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Mass Blast */}
-          <div className="bg-red-950/30 rounded-xl p-5 border border-red-900/40">
-            <h3 className="text-sm font-semibold text-red-400 mb-4 flex items-center gap-2">
-              <TrendingDown size={16} /> Mass Promo Blast (Baseline)
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              <KPI icon={Users} label="Users Targeted" value={blast.users_targeted?.toLocaleString()} color="text-red-300" />
-              <KPI icon={TrendingUp} label="Incremental MAU" value={blast.incremental_mau_gained?.toFixed(1)} color="text-red-300" />
-              <KPI icon={DollarSign} label="Total Spend" value={`${blast.total_spend_bdt?.toLocaleString()} ৳`} color="text-red-300" />
-              <KPI icon={DollarSign} label="Cost / MAU" value={`${blast.cost_per_incremental_mau?.toFixed(0)} ৳`} color="text-red-300" />
-              <KPI icon={ShieldAlert} label="Fatigued Spammed" value={blast.fatigued_users_spammed} color="text-red-400" />
-              <KPI icon={DollarSign} label="Sure-Thing Waste" value={`${blast.waste_on_sure_things_bdt?.toLocaleString()} ৳`} color="text-red-400" />
-            </div>
-          </div>
-
-          {/* ActivateAI */}
-          <div className="bg-emerald-950/30 rounded-xl p-5 border border-emerald-900/40">
-            <h3 className="text-sm font-semibold text-emerald-400 mb-4 flex items-center gap-2">
-              <TrendingUp size={16} /> upay ActivateAI (Uplift-Targeted)
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              <KPI icon={Users} label="Users Targeted" value={ai.users_targeted?.toLocaleString()} color="text-emerald-300" />
-              <KPI icon={TrendingUp} label="Incremental MAU" value={ai.incremental_mau_gained?.toFixed(1)} color="text-emerald-300" />
-              <KPI icon={DollarSign} label="Total Spend" value={`${ai.total_spend_bdt?.toLocaleString()} ৳`} color="text-emerald-300" />
-              <KPI icon={DollarSign} label="Cost / MAU" value={`${ai.cost_per_incremental_mau?.toFixed(0)} ৳`} color="text-emerald-300" />
-              <KPI icon={DollarSign} label="Budget Saved" value={`${savings.budget_saved_bdt?.toLocaleString()} ৳`} color="text-emerald-400" />
-              <KPI icon={ShieldAlert} label="Fatigued Protected" value={savings.fatigued_users_protected} color="text-emerald-400" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Savings Summary */}
-      {savings.cost_efficiency_improvement_pct !== undefined && (
-        <div className="bg-slate-800/40 rounded-xl p-4 border border-slate-700/50 flex flex-wrap gap-6 items-center justify-center">
-          <div className="text-center">
-            <p className="text-3xl font-bold" style={{ color: 'var(--upay-yellow)' }}>{savings.cost_efficiency_improvement_pct}%</p>
-            <p className="text-xs text-slate-400">Cost Efficiency Gain</p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-emerald-400">{savings.budget_saved_bdt?.toLocaleString()} ৳</p>
-            <p className="text-xs text-slate-400">Budget Saved</p>
-          </div>
-          <div className="text-center">
-            <p className="text-3xl font-bold text-emerald-400">{savings.sleeping_dogs_not_disturbed}</p>
-            <p className="text-xs text-slate-400">Sleeping Dogs Protected</p>
-          </div>
+      {/* 4-Way Ablation Study Comparison Table */}
+      {result && result.configurations && (
+        <div className="bg-slate-800/40 rounded-xl p-5 border border-slate-700/50 overflow-x-auto">
+          <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
+            <TrendingUp size={16} /> Ablation Study: Policy Value Comparison
+          </h3>
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-700">
+                <th className="py-3 px-4 text-xs text-slate-400 font-medium">Metric</th>
+                {result.configurations.map(c => (
+                  <th key={c.name} className={`py-3 px-4 text-xs font-semibold ${
+                    c.name.includes('ActivateAI') ? 'text-emerald-400' : 'text-slate-300'
+                  }`}>{c.name}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="text-sm">
+              <tr className="border-b border-slate-700/50">
+                <td className="py-3 px-4 text-slate-400 flex items-center gap-2"><Users size={14}/> Users Targeted</td>
+                {result.configurations.map(c => <td key={c.name} className="py-3 px-4 text-white">{c.users_targeted.toLocaleString()}</td>)}
+              </tr>
+              <tr className="border-b border-slate-700/50 bg-slate-800/20">
+                <td className="py-3 px-4 text-slate-400 flex items-center gap-2"><TrendingUp size={14}/> Incremental MAU</td>
+                {result.configurations.map(c => <td key={c.name} className="py-3 px-4 font-bold text-white">{c.incremental_mau_gained.toFixed(1)}</td>)}
+              </tr>
+              <tr className="border-b border-slate-700/50">
+                <td className="py-3 px-4 text-slate-400 flex items-center gap-2"><DollarSign size={14}/> Total Spend</td>
+                {result.configurations.map(c => <td key={c.name} className="py-3 px-4 text-slate-300">{c.total_spend_bdt.toLocaleString()} ৳</td>)}
+              </tr>
+              <tr className="border-b border-slate-700/50 bg-slate-800/20">
+                <td className="py-3 px-4 text-slate-400 flex items-center gap-2"><DollarSign size={14}/> Cost / MAU</td>
+                {result.configurations.map(c => <td key={c.name} className="py-3 px-4 font-mono text-[var(--upay-yellow)]">{c.cost_per_incremental_mau.toLocaleString()} ৳</td>)}
+              </tr>
+              <tr className="border-b border-slate-700/50">
+                <td className="py-3 px-4 text-slate-400 flex items-center gap-2"><ShieldAlert size={14}/> Cashback Waste</td>
+                {result.configurations.map(c => <td key={c.name} className="py-3 px-4 text-red-400">{c.cashback_waste_bdt.toLocaleString()} ৳</td>)}
+              </tr>
+              <tr>
+                <td className="py-3 px-4 text-slate-400 flex items-center gap-2"><ShieldAlert size={14}/> Fatigue / Opt-Out Rate</td>
+                {result.configurations.map(c => <td key={c.name} className="py-3 px-4 text-orange-400">{(c.opt_out_fatigue_rate * 100).toFixed(1)}%</td>)}
+              </tr>
+            </tbody>
+          </table>
         </div>
       )}
 
