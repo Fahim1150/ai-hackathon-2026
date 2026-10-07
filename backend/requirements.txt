@@ -13,3 +13,4 @@ scipy
 pyarrow
 google-genai==2.28.0
 shap==0.52.0
+slowapi>=0.1.9
