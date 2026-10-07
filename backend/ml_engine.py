@@ -425,7 +425,7 @@ def evaluate_ope_doubly_robust(scored_df: pd.DataFrame) -> dict:
 # ---------------------------------------------------------------------------
 # Overview stats for API
 # ---------------------------------------------------------------------------
-def build_overview_stats(scored_df: pd.DataFrame, fairness: dict, val_metrics: dict, ope: dict) -> dict:
+def build_overview_stats(scored_df: pd.DataFrame, fairness: dict, val_metrics: dict, ope: dict, sensitivity: dict) -> dict:
     """Aggregate stats for GET /api/overview."""
     funnel = scored_df["lifecycle_stage"].value_counts().to_dict()
     quadrant_dist = scored_df["uplift_quadrant"].value_counts().to_dict()
@@ -438,6 +438,7 @@ def build_overview_stats(scored_df: pd.DataFrame, fairness: dict, val_metrics: d
         "offer_distribution": offer_dist,
         "validation_metrics": val_metrics,
         "ope_doubly_robust": ope,
+        "sensitivity": sensitivity,
         "fairness": fairness,
     }
 
@@ -453,6 +454,13 @@ def main():
     # 1. Train
     engine = ActivateAIEngine()
     engine.train("data/train.csv")
+    
+    # Trigger data drift monitor right after training on the new batch
+    try:
+        from backend.pipeline.drift_monitor import run_drift_check
+        run_drift_check("data/test.csv", "data/train.csv", model_version="v2.0.0")
+    except ImportError:
+        pass
 
     # 2. Score test set
     scored = engine.predict("data/test.csv")
@@ -476,9 +484,16 @@ def main():
 
     # 7. Doubly Robust Off-Policy Evaluation
     ope = evaluate_ope_doubly_robust(scored)
+    
+    # 8. Causal Sensitivity Analysis
+    try:
+        from backend.ml.sensitivity_analysis import run_sensitivity_analysis
+        sensitivity = run_sensitivity_analysis(scored, "treatment", "activated_30d", confounder_strength=0.2)
+    except ImportError:
+        sensitivity = {}
 
-    # 8. Overview stats
-    overview = build_overview_stats(scored, fairness, val_metrics, ope)
+    # 9. Overview stats
+    overview = build_overview_stats(scored, fairness, val_metrics, ope, sensitivity)
     with open(MODELS_DIR / "overview_stats.json", "w") as f:
         json.dump(overview, f, indent=2)
     print(f"✅ Overview stats saved to {MODELS_DIR / 'overview_stats.json'}")

@@ -7,3 +7,10 @@ python-dotenv
 httpx
 google-genai==2.28.0
 slowapi>=0.1.9
+lightgbm
+shap==0.52.0
+joblib
+scikit-learn
+scipy
+pytest
+httpx
