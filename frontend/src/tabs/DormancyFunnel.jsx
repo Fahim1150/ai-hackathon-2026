@@ -74,40 +74,29 @@ export default function DormancyFunnel() {
         <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
           <Zap size={16} style={{ color: 'var(--upay-yellow)' }} /> MAU Growth Simulator
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="text-xs text-slate-400 font-medium">Reactivation Budget</label>
-              <span className="text-xs font-mono text-[var(--upay-yellow)]">{budget.toLocaleString()} ৳</span>
-            </div>
+            <label className="text-xs text-slate-400">Reactivation Budget (BDT)</label>
             <input type="range" min={1000} max={100000} step={1000} value={budget}
-                   onChange={e => setBudget(+e.target.value)} 
-                   className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#F5A623]" />
+                   onChange={e => setBudget(+e.target.value)} className="w-full mt-1 accent-[#F5A623]" />
+            <span className="text-sm font-mono text-white">{budget.toLocaleString()} BDT</span>
           </div>
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="text-xs text-slate-400 font-medium">Max Fatigue Cap</label>
-              <span className="text-xs font-mono text-[var(--upay-yellow)]">{fatigueCap}</span>
-            </div>
+            <label className="text-xs text-slate-400">Max Fatigue Cap (0-100)</label>
             <input type="range" min={0} max={100} step={5} value={fatigueCap}
-                   onChange={e => setFatigueCap(+e.target.value)} 
-                   className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#F5A623]" />
+                   onChange={e => setFatigueCap(+e.target.value)} className="w-full mt-1 accent-[#F5A623]" />
+            <span className="text-sm font-mono text-white">{fatigueCap}</span>
           </div>
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="text-xs text-slate-400 font-medium">Min Uplift Cutoff</label>
-              <span className="text-xs font-mono text-[var(--upay-yellow)]">{upliftCut.toFixed(2)}</span>
-            </div>
+            <label className="text-xs text-slate-400">Min Uplift Cutoff</label>
             <input type="range" min={0} max={0.5} step={0.01} value={upliftCut}
-                   onChange={e => setUpliftCut(+e.target.value)} 
-                   className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#F5A623]" />
+                   onChange={e => setUpliftCut(+e.target.value)} className="w-full mt-1 accent-[#F5A623]" />
+            <span className="text-sm font-mono text-white">{upliftCut.toFixed(2)}</span>
           </div>
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="text-xs text-slate-400 font-medium">Lifecycle Stage Filter</label>
-            </div>
+            <label className="text-xs text-slate-400">Lifecycle Stage Filter</label>
             <select value={stage} onChange={e => setStage(e.target.value)}
-                    className="w-full bg-slate-700 text-white text-sm rounded-lg px-3 py-1.5 border border-slate-600 focus:ring-1 focus:ring-[var(--upay-yellow)] outline-none">
+                    className="w-full mt-1 bg-slate-700 text-white text-sm rounded-lg px-3 py-2 border border-slate-600">
               <option value="">All Stages</option>
               {stages.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
