@@ -3,14 +3,7 @@ uvicorn[standard]
 pydantic
 pandas
 numpy
-scikit-learn
-lightgbm
-joblib
 python-dotenv
-pytest
 httpx
-scipy
-pyarrow
 google-genai==2.28.0
-shap==0.52.0
 slowapi>=0.1.9

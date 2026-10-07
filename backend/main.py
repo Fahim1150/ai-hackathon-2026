@@ -159,7 +159,13 @@ def _load_engine() -> Any:
 @limiter.limit("1000/minute")
 def predict_batch(req: BatchPredictRequest, request: Request):
     """Dynamically run LightGBM inference + SHAP on a batch of raw customer features."""
-    engine = _load_engine()
+    try:
+        engine = _load_engine()
+    except ImportError:
+        # Fallback for lightweight serverless environments (e.g. Vercel)
+        # where LightGBM/SHAP exceed deployment size limits.
+        return {"predictions": [], "error": "ML engine dependencies (LightGBM/SHAP) are not available in this environment."}
+        
     df = pd.DataFrame(req.customers)
     if df.empty:
         return {"predictions": []}
