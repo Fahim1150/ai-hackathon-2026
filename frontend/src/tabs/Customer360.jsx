@@ -177,8 +177,8 @@ export default function Customer360() {
                 <p className="text-xs text-slate-500">Affinity: {selected.top_affinity_domain}</p>
               </div>
 
-              <div className="bg-slate-800/60 rounded-xl p-4 border border-slate-700/50">
-                <div className="flex items-center gap-2 mb-2">
+              <div className="bg-slate-800/60 rounded-xl p-4 border border-slate-700/50 flex flex-col items-center">
+                <div className="w-full flex items-center gap-2 mb-2">
                   <MessageSquare size={14} className="text-slate-400" />
                   <h4 className="text-xs text-slate-400 uppercase tracking-wide">SMS Preview</h4>
                   <span className={`ml-auto text-[10px] px-1.5 py-0.5 rounded-full ${
@@ -187,14 +187,31 @@ export default function Customer360() {
                     <Sparkles size={10} className="inline mr-1" />{selected.nudge?.generation_source}
                   </span>
                 </div>
-                <div className="space-y-2">
-                  <div className="bg-slate-700/40 rounded-lg p-2.5">
-                    <p className="text-[10px] text-slate-500 mb-0.5">English</p>
-                    <p className="text-xs text-white">{selected.nudge?.sms_english}</p>
+                
+                {/* iOS Mock Phone Frame */}
+                <div className="relative w-[280px] h-[400px] bg-slate-900 rounded-[2.5rem] border-[8px] border-slate-800 shadow-2xl overflow-hidden mt-2 flex flex-col">
+                  {/* Dynamic Island Notch */}
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-10"></div>
+                  
+                  {/* Phone Header */}
+                  <div className="bg-slate-800/90 pt-8 pb-3 px-4 flex flex-col items-center shadow-md z-0 backdrop-blur-sm">
+                    <div className="w-10 h-10 bg-[var(--upay-yellow)] rounded-full flex items-center justify-center font-bold text-slate-900 mb-1">
+                      u
+                    </div>
+                    <p className="text-xs font-semibold text-white">upay</p>
                   </div>
-                  <div className="bg-slate-700/40 rounded-lg p-2.5">
-                    <p className="text-[10px] text-slate-500 mb-0.5">বাংলা</p>
-                    <p className="text-xs text-white">{selected.nudge?.sms_bangla}</p>
+                  
+                  {/* Chat Area */}
+                  <div className="flex-1 p-4 overflow-y-auto bg-[#0a0a0a] flex flex-col gap-4">
+                    <div className="text-[9px] text-center text-slate-500 uppercase tracking-wider">Today 10:42 AM</div>
+                    
+                    <div className="bg-emerald-600 text-white p-3 rounded-2xl rounded-tl-sm self-start max-w-[85%] shadow-md relative">
+                      <p className="text-[13px] leading-relaxed font-sans">{selected.nudge?.sms_english}</p>
+                    </div>
+                    
+                    <div className="bg-emerald-600 text-white p-3 rounded-2xl rounded-tl-sm self-start max-w-[85%] shadow-md relative">
+                      <p className="text-[14px] leading-relaxed font-sans">{selected.nudge?.sms_bangla}</p>
+                    </div>
                   </div>
                 </div>
               </div>
