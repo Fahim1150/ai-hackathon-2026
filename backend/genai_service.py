@@ -2,7 +2,7 @@
 upay ActivateAI — Grounded Gemini API Service.
 
 Translates structured ML outputs into plain-language explanations and
-bilingual (Bangla + English) SMS nudges using Gemini 2.5 Flash with
+bilingual (Bangla + English) SMS nudges using Gemini 3.8 Flash with
 Pydantic Structured Outputs.
 
 Per AGENTS.md guardrail #3: the LLM NEVER makes targeting, scoring, or
@@ -42,7 +42,7 @@ class CustomerNudge(BaseModel):
         description="One-line compliance reminder (e.g., opt-out instructions)."
     )
     generation_source: str = Field(
-        description="Either 'Gemini 2.5 Flash' or 'Offline Deterministic Fallback'."
+        description="Either 'Gemini 3.8 Flash' or 'Offline Deterministic Fallback'."
     )
 
 
@@ -55,7 +55,7 @@ class ExperimentInsights(BaseModel):
         description="Recommendation for the next A/B campaign experiment to run."
     )
     generation_source: str = Field(
-        description="Either 'Gemini 2.5 Flash' or 'Offline Deterministic Fallback'."
+        description="Either 'Gemini 3.8 Flash' or 'Offline Deterministic Fallback'."
     )
 
 
@@ -117,7 +117,7 @@ def generate_customer_nudge(
 def _gemini_customer_nudge(
     client, user_profile: dict, shap_drivers: list[dict]
 ) -> dict[str, Any]:
-    """Call Gemini 2.5 Flash with structured output."""
+    """Call Gemini 3.8 Flash with structured output."""
     from google.genai import types
 
     # Build grounded prompt from structured data only
@@ -151,7 +151,7 @@ TOP 3 SHAP DRIVERS:
 IMPORTANT: Use ONLY the data above. Do not fabricate statistics or features not listed."""
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.8-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
@@ -161,7 +161,7 @@ IMPORTANT: Use ONLY the data above. Do not fabricate statistics or features not 
     )
 
     result = json.loads(response.text)
-    result["generation_source"] = "Gemini 2.5 Flash"
+    result["generation_source"] = "Gemini 3.8 Flash"
     return result
 
 
@@ -230,7 +230,7 @@ def generate_experiment_insights(
 
 
 def _gemini_experiment_insights(client, summary: dict) -> dict[str, Any]:
-    """Call Gemini 2.5 Flash for experiment intelligence."""
+    """Call Gemini 3.8 Flash for experiment intelligence."""
     from google.genai import types
 
     prompt = f"""You are an MFS growth analyst for upay Bangladesh.
@@ -245,7 +245,7 @@ SIMULATION RESULTS:
 Focus on actionable insights: which lifecycle stages benefit most, where budget is wasted, and what the fatigue/sleeping-dog data suggests."""
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-3.8-flash",
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
@@ -255,7 +255,7 @@ Focus on actionable insights: which lifecycle stages benefit most, where budget 
     )
 
     result = json.loads(response.text)
-    result["generation_source"] = "Gemini 2.5 Flash"
+    result["generation_source"] = "Gemini 3.8 Flash"
     return result
 
 
