@@ -7,10 +7,23 @@
 [![React Version](https://img.shields.io/badge/react-18-blue.svg)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](#)
 
+**Team:** [JU_DryRun] | **Members:** Abdullah Al Fahim & [Fahim Ahmad] & [Iqramul Hasan Naeem]
+Jahangirnagar University
+**Pitch Deck:** [Link] | **Demo Video:** [Link]
+
+📖 **Official Hackathon Documentation:** Please review our [9-Step Logic Chain & Problem Statement](docs/LOGIC_CHAIN.md) for the complete business framework and validation strategy required by the AI DEV FEST 2026 guidelines.
+
 ## Executive Summary
 upay ActivateAI was engineered explicitly to solve the mandate of AI DEV FEST 2026 Track 04 (Growth & Campaign Intelligence). While traditional Mobile Financial Services struggle with competitor dominance in P2P transfers, ActivateAI unlocks massive growth by focusing on dormant user reactivation through solo-utility transactions (e.g., mobile recharge, bill pay, super shop payments, and toll fees). 
 
-Instead of burning marketing budgets on mass SMS blasts, ActivateAI utilizes a full stack causal machine learning pipeline. It mathematically isolates "Persuadables" (users who will only transact if incentivized) while suppressing "Sure Things" (who will transact anyway) and "Lost Causes". This precision guarantees the highest Incremental Monthly Active Users (MAU) per budget dollar spent, establishing a sticky 30-day utility habit.
+Instead of burning marketing budgets on mass SMS blasts, ActivateAI utilizes a full stack causal machine learning pipeline. It mathematically isolates "Persuadables" (users who will only transact if incentivized) while suppressing "Sure Things" (users who will transact anyway) and "Lost Causes". This precision guarantees the highest Incremental Monthly Active Users (MAU) per budget dollar spent, establishing a sticky 30-day utility habit.
+
+## Product Interface
+*(Ensure screenshots are saved in docs/assets/ before final submission)*
+| Executive ROI Simulator | Customer 360 & SHAP Explainability |
+| :---: | :---: |
+| <img src="docs/assets/roi_simulator.png" width="400"/> | <img src="docs/assets/shap_explainability.png" width="400"/> |
+| *Interactive budget optimization vs Mass SMS baseline* | *Individual uplift scores with Gemini-generated bilingual copy* |
 
 ## The Problem
 Mobile financial services face three critical growth hurdles:
@@ -56,6 +69,20 @@ The backend is fortified for enterprise deployment:
 * **Approval Ledger:** A persistent SQLite `campaign_approvals` ledger ensures that no campaign transitions from DRAFT to APPROVED without a timestamped human-in-the-loop review.
 * **Governed Data Ingestion:** The `POST /api/ingest/governed-data` endpoint simulates a production ETL pipeline that drops all PII and performs a one-way SHA-256 hash on customer identifiers before batch inference.
 * **Drift Monitoring:** Incoming batch data is continuously monitored against reference distributions using Population Stability Index (PSI). Metrics are logged to a persistent Model Registry to track concept drift.
+
+## System Architecture
+```mermaid
+graph TD
+    A[Mock Governed Data API] -->|Hashes PII| B(Data Pipeline & Feature Prep)
+    B --> C{LightGBM Uplift Engine}
+    C -->|T-Learner Propensity| D[Uplift & Quadrant Classifier]
+    D --> E[Deterministic Knapsack Optimizer]
+    E -->|Optimized Allocation| F[(SQLite Approval Ledger)]
+    E --> G{Gemini 2.5 Flash}
+    G -->|Translates SHAP| H[Bilingual SMS Nudges]
+    F --> I[React Dashboard]
+    H --> I
+```
 
 ## Core API Reference
 
