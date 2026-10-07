@@ -15,7 +15,7 @@ Security hardening:
   - Campaign approvals persisted to SQLite (backend/database.py)
 """
 
-from __future__ import annotations
+
 
 import json
 import os
