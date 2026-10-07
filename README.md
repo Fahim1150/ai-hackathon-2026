@@ -30,10 +30,10 @@ ActivateAI is a full stack Machine Learning pipeline that solves the dormancy cr
 ## Key Innovations
 Our platform integrates rigorous statistical validation, strict data governance, and scalable MLOps, directly addressing advanced hackathon criteria:
 
-* **Causal ML Rigor:** Implements advanced T-Learner and S-Learner meta-learners alongside Propensity Baselines. Robustness is verified through 100-iteration bootstrap confidence intervals, Doubly Robust Off-Policy Evaluation (OPE), and unobserved confounder Sensitivity Analysis.
+* **Causal ML Rigor:** Implements advanced T-Learner and S-Learner meta-learners alongside Propensity Baselines. Robustness is strictly verified through 100-iteration bootstrap confidence intervals, Doubly Robust Off-Policy Evaluation (OPE), and unobserved confounder Sensitivity Analysis to protect against treatment-effect misspecification.
 * **Deterministic Knapsack Optimizer:** Replaces static allocations with a dynamic pricing algorithm. It dynamically markdowns offer costs to the minimum required tier to cross the uplift threshold, maximizing Incremental MAU per budget dollar.
-* **Scalability & MLOps:** Production ready architecture featuring a dedicated Model Registry, Population Stability Index (PSI) Data Drift Monitoring, and a governed Data Ingestion API that hashes identifiers and strips PII before batch inference.
-* **Security & Responsible AI:** Enforces human-in-the-loop campaign oversight via a persistent SQLite Approval Ledger. The backend is hardened with Role-Based Access Control (RBAC), strict CORS origins, and rate limiting to prevent API abuse.
+* **Scalability & MLOps:** Production-ready architecture featuring a dedicated Model Registry, Population Stability Index (PSI) Data Drift Monitoring, and a governed Data Ingestion API that hashes identifiers and strips PII before high-volume batch inference. We also implemented rigorous concurrent load testing utilizing Python's `concurrent.futures`.
+* **Security & Responsible AI:** Enforces human-in-the-loop campaign oversight via an immutable SQLite Approval Ledger (audit records). The backend API is fully hardened with Role-Based Access Control (RBAC), restrictive CORS origins, and `slowapi` rate limiting to prevent abuse.
 
 ## Deterministic Optimization & Ablation Results
 We explicitly separate the ML prediction scores from the financial decision engine. A deterministic Knapsack Budget Optimizer dynamically markdowns offer costs (scaling between 10, 15, and 20 BDT tiers) to calculate the minimum required incentive needed to cross the uplift threshold.
@@ -58,10 +58,11 @@ We leverage the `google-genai` SDK (Gemini 2.5 Flash) safely and responsibly.
 
 ## Security, Governance & MLOps
 The backend is fortified for enterprise deployment:
-* **API Hardening:** Protected by mock Role-Based Access Control (RBAC), strict CORS origins (locked to the frontend domain), and `slowapi` rate limiting.
-* **Approval Ledger:** A persistent SQLite `campaign_approvals` ledger ensures that no campaign transitions from DRAFT to APPROVED without a timestamped human-in-the-loop review.
-* **Governed Data Ingestion:** The `POST /api/ingest/governed-data` endpoint simulates a production ETL pipeline that drops all PII and performs a one-way SHA-256 hash on customer identifiers before batch inference.
+* **API Hardening:** Protected by authenticated Role-Based Access Control (RBAC) via API keys, restrictive CORS origins (locked to the frontend domain), and `slowapi` rate limiting.
+* **Immutable Audit Ledger:** A persistent SQLite `campaign_approvals` ledger ensures that no campaign transitions from DRAFT to APPROVED without a timestamped human-in-the-loop review, providing a tamper-proof audit trail.
+* **Governed Data Ingestion:** The `POST /api/ingest/governed-data` endpoint simulates a production ETL pipeline that drops all PII and performs a one-way SHA-256 hash on customer identifiers before high-volume batch inference.
 * **Drift Monitoring:** Incoming batch data is continuously monitored against reference distributions using Population Stability Index (PSI). Metrics are logged to a persistent Model Registry to track concept drift.
+* **Load Testing:** Verified for high-throughput concurrency via customized `concurrent.futures` load testing.
 
 ## System Architecture
 ```mermaid
