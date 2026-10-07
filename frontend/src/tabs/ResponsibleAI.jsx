@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ShieldCheck, CheckCircle, AlertCircle, User } from 'lucide-react';
 import { getOverview, approveCampaign } from '../lib/api';
+import toast from 'react-hot-toast';
 
 const AI_CHECKS = [
   { cat: 'Privacy', items: ['All data is 100% synthetic — no real PII', 'No real phone numbers or account numbers', 'Gemini API receives only structured summaries'] },
@@ -21,13 +22,21 @@ export default function ResponsibleAI() {
   useEffect(() => { getOverview().then(setOverview).catch(console.error); }, []);
 
   const handleApprove = async () => {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      toast.error('Approver Name is required');
+      return;
+    }
     setSubmitting(true);
+    const toastId = toast.loading('Authorizing campaign...');
     try {
       const r = await approveCampaign({ admin_user: name, allocated_budget: +budgetInput, notes });
       setApprovals(prev => [r, ...prev]);
       setName(''); setNotes('');
-    } catch (e) { console.error(e); }
+      toast.success(`Campaign approved by ${name}!`, { id: toastId });
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to approve campaign', { id: toastId });
+    }
     setSubmitting(false);
   };
 
