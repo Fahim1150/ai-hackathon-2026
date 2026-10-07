@@ -7,42 +7,90 @@ nudges, and human-in-the-loop campaign approval.
 All targeting/scoring logic is deterministic and lives in optimizer.py
 and ml_engine.py. The Gemini service only translates structured outputs
 into human-readable text (AGENTS.md guardrails #2, #3, #5).
+
+Security hardening:
+  - CORS restricted to explicit dev/prod origins (no wildcard with credentials)
+  - API key RBAC via X-API-Key header on protected endpoints
+  - Rate limiting via slowapi (60 req/min per client IP)
+  - Campaign approvals persisted to SQLite (backend/database.py)
 """
 
 from __future__ import annotations
 
 import json
+import os
 import pathlib
 from datetime import datetime, timezone
 from typing import Any
 
 import pandas as pd
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request, Security
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 from backend.optimizer import optimize_reactivation_budget
 from backend.genai_service import generate_customer_nudge, generate_experiment_insights
+from backend.database import init_db, insert_approval, list_approvals, count_approvals
 
 load_dotenv()
 
 # ---------------------------------------------------------------------------
 # App setup
 # ---------------------------------------------------------------------------
+limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
+
 app = FastAPI(
     title="upay ActivateAI",
     description="Dormant-to-Active Lifecycle, Uplift & Gemini Copilot Engine",
-    version="1.0.0",
+    version="2.0.0",
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS: explicit origins only — never use "*" with allow_credentials=True
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000", "*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ---------------------------------------------------------------------------
+# RBAC — API Key authentication
+# ---------------------------------------------------------------------------
+# In production this would be a per-user token validated against a DB.
+# For the hackathon we use a single configurable key (default provided for dev).
+ACTIVATE_AI_API_KEY = os.environ.get("ACTIVATE_AI_API_KEY", "upay-activate-ai-dev-key-2026")
+
+_api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+async def require_api_key(
+    api_key: str | None = Security(_api_key_header),
+) -> str:
+    """Dependency that enforces a valid X-API-Key header."""
+    if api_key is None or api_key != ACTIVATE_AI_API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+    return api_key
+
+# ---------------------------------------------------------------------------
+# Initialise persistent storage on startup
+# ---------------------------------------------------------------------------
+@app.on_event("startup")
+def _startup():
+    init_db()
 
 # ---------------------------------------------------------------------------
 # Data loading (lazy singleton)
@@ -72,11 +120,6 @@ def _load_json(filename: str) -> dict:
     return _cache[key]
 
 
-# ---------------------------------------------------------------------------
-# In-memory campaign approval log (AGENTS.md guardrail #5)
-# ---------------------------------------------------------------------------
-_approvals: list[dict] = []
-
 
 # ---------------------------------------------------------------------------
 # Request / Response models
@@ -89,14 +132,45 @@ class SimulateRequest(BaseModel):
 
 
 class ApprovalRequest(BaseModel):
-    reviewer_name: str = Field(min_length=1, description="Name of the human reviewer")
-    budget_bdt: float = Field(gt=0, description="Approved budget in BDT")
+    admin_user: str = Field(min_length=1, description="Name of the human reviewer / admin")
+    allocated_budget: float = Field(gt=0, description="Approved budget in BDT")
     notes: str = Field(default="", description="Optional reviewer notes")
+
+
+class BatchPredictRequest(BaseModel):
+    customers: list[dict[str, Any]]
+
+
+# ---------------------------------------------------------------------------
+# Data loading helpers (lazy singleton)
+# ---------------------------------------------------------------------------
+def _load_engine() -> Any:
+    if "engine" not in _cache:
+        from backend.ml_engine import ActivateAIEngine
+        _cache["engine"] = ActivateAIEngine.load(str(MODELS_DIR))
+    return _cache["engine"]
 
 
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
+
+@app.post("/api/predict/batch", dependencies=[Depends(require_api_key)])
+@limiter.limit("1000/minute")
+def predict_batch(req: BatchPredictRequest, request: Request):
+    """Dynamically run LightGBM inference + SHAP on a batch of raw customer features."""
+    engine = _load_engine()
+    df = pd.DataFrame(req.customers)
+    if df.empty:
+        return {"predictions": []}
+        
+    scored_df = engine.predict_batch(df)
+    
+    # Parse the json strings back to dicts for API response
+    scored_df["shap_top3"] = scored_df["shap_top3"].apply(json.loads)
+    
+    return {"predictions": scored_df.to_dict(orient="records")}
+
 
 @app.get("/api/health")
 def health():
@@ -115,8 +189,9 @@ def overview():
     return overview_stats
 
 
-@app.post("/api/simulate-mau-growth")
-def simulate_mau_growth(req: SimulateRequest):
+@app.post("/api/simulate-mau-growth", dependencies=[Depends(require_api_key)])
+@limiter.limit("60/minute")
+def simulate_mau_growth(req: SimulateRequest, request: Request):
     """Run budget optimizer and generate Gemini experiment insights."""
     predictions = _load_predictions()
 
@@ -136,8 +211,9 @@ def simulate_mau_growth(req: SimulateRequest):
     return result
 
 
-@app.get("/api/customer/{customer_id}")
-def get_customer(customer_id: str):
+@app.get("/api/customer/{customer_id}", dependencies=[Depends(require_api_key)])
+@limiter.limit("60/minute")
+def get_customer(customer_id: str, request: Request):
     """Single customer 360: profile, uplift, SHAP, fatigue, bilingual SMS."""
     predictions = _load_predictions()
 
@@ -237,22 +313,28 @@ def list_customers(
     }
 
 
-@app.post("/api/approve-campaign")
-def approve_campaign(req: ApprovalRequest):
-    """Human-in-the-loop campaign approval (AGENTS.md guardrail #5)."""
-    approval = {
-        "approved": True,
-        "reviewer_name": req.reviewer_name,
-        "budget_bdt": req.budget_bdt,
-        "notes": req.notes,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "campaign_id": f"CAMP_{len(_approvals) + 1:04d}",
-    }
-    _approvals.append(approval)
-    return approval
+@app.post("/api/approve-campaign", dependencies=[Depends(require_api_key)])
+@limiter.limit("60/minute")
+def approve_campaign(req: ApprovalRequest, request: Request):
+    """Human-in-the-loop campaign approval (AGENTS.md guardrail #5).
+
+    Now persisted to SQLite — survives server restarts.
+    """
+    next_id = count_approvals() + 1
+    campaign_id = f"CAMP_{next_id:04d}"
+
+    record = insert_approval(
+        campaign_id=campaign_id,
+        admin_user=req.admin_user,
+        allocated_budget=req.allocated_budget,
+        notes=req.notes,
+    )
+    return record
 
 
-@app.get("/api/approvals")
-def list_approvals():
-    """List all campaign approvals."""
-    return {"approvals": _approvals}
+@app.get("/api/approvals", dependencies=[Depends(require_api_key)])
+@limiter.limit("60/minute")
+def get_approvals(request: Request):
+    """List all campaign approvals from persistent ledger."""
+    return {"approvals": list_approvals()}
+
