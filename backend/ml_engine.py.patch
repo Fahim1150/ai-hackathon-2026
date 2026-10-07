@@ -1,0 +1,53 @@
+--- backend/ml_engine.py
++++ backend/ml_engine.py
+@@ -123,6 +123,9 @@
+     def __init__(self):
+         self.model_t1: lgb.LGBMClassifier | None = None  # treated
+         self.model_t0: lgb.LGBMClassifier | None = None  # control
++        self.model_s: lgb.LGBMClassifier | None = None   # S-Learner
++        self.model_base: lgb.LGBMClassifier | None = None # Base conversion model (Propensity to convert)
++        self.model_propensity: lgb.LGBMClassifier | None = None # Treatment propensity for DR
+ 
+     # ----- Training -----
+     def train(self, train_path: str = "data/train.csv") -> "ActivateAIEngine":
+@@ -141,8 +144,21 @@
+         self.model_t0 = lgb.LGBMClassifier(**LGB_PARAMS)
+         self.model_t0.fit(X[mask_t0], y[mask_t0])
+ 
++        # S-Learner: train on all data with treatment as a feature
++        X_s = X.copy()
++        X_s["treatment"] = t
++        self.model_s = lgb.LGBMClassifier(**LGB_PARAMS)
++        self.model_s.fit(X_s, y)
++
++        # Base conversion (propensity to convert without treatment)
++        self.model_base = lgb.LGBMClassifier(**LGB_PARAMS)
++        self.model_base.fit(X, y)
++
++        # Treatment propensity (P(T=1|X)) for DR estimation
++        self.model_propensity = lgb.LGBMClassifier(**LGB_PARAMS)
++        self.model_propensity.fit(X, t)
++
+         print(f"✅ Trained T1 on {mask_t1.sum()} treated rows")
+         print(f"✅ Trained T0 on {mask_t0.sum()} control rows")
++        print(f"✅ Trained S-Learner, Base Conversion, and Propensity models")
+         return self
+ 
+     # ----- Prediction -----
+@@ -158,6 +174,16 @@
+         df["prob_active_control"] = np.round(prob_t0, 4)
+         df["uplift_score"] = np.round(uplift, 4)
+ 
++        # --- S-Learner Uplift ---
++        X_s1 = X.copy(); X_s1["treatment"] = 1
++        X_s0 = X.copy(); X_s0["treatment"] = 0
++        df["s_learner_uplift"] = np.round(self.model_s.predict_proba(X_s1)[:, 1] - self.model_s.predict_proba(X_s0)[:, 1], 4)
++
++        # --- Base Conversion / Propensity to Convert ---
++        df["base_conversion_score"] = np.round(self.model_base.predict_proba(X)[:, 1], 4)
++
++        # --- Treatment Propensity ---
++        df["treatment_propensity"] = np.round(self.model_propensity.predict_proba(X)[:, 1], 4)
++
+         # --- Quadrant classification ---
+         df["uplift_quadrant"] = [

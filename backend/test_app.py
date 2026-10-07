@@ -12,9 +12,10 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.main import app
+from backend.main import app, ACTIVATE_AI_API_KEY
 
 client = TestClient(app)
+AUTH_HEADERS = {"X-API-Key": ACTIVATE_AI_API_KEY}
 
 
 # =========================================================================
@@ -194,27 +195,27 @@ class TestAPIEndpoints:
             "budget_bdt": 10000,
             "max_fatigue_cap": 70,
             "min_uplift_cutoff": 0.02,
-        })
+        }, headers=AUTH_HEADERS)
         assert r.status_code == 200
         data = r.json()
         assert "activate_ai" in data
         assert "mass_blast_baseline" in data
-        assert "savings" in data
-        assert "experiment_insights" in data
+        assert "configurations" in data
+        assert len(data["configurations"]) == 4
         assert data["activate_ai"]["total_spend_bdt"] <= 10000
 
     def test_simulate_with_stage_filter(self):
         r = client.post("/api/simulate-mau-growth", json={
             "budget_bdt": 5000,
             "lifecycle_stage": "Payday Cash-Outer",
-        })
+        }, headers=AUTH_HEADERS)
         assert r.status_code == 200
 
     def test_customer_found(self):
         # Use a customer_id from the test set
         pred = pd.read_csv("models/test_predictions.csv")
         cid = pred.iloc[0]["customer_id"]
-        r = client.get(f"/api/customer/{cid}")
+        r = client.get(f"/api/customer/{cid}", headers=AUTH_HEADERS)
         assert r.status_code == 200
         data = r.json()
         assert data["customer_id"] == cid
@@ -225,7 +226,7 @@ class TestAPIEndpoints:
         assert "generation_source" in data["nudge"]
 
     def test_customer_not_found(self):
-        r = client.get("/api/customer/FAKE_CUSTOMER_999")
+        r = client.get("/api/customer/FAKE_CUSTOMER_999", headers=AUTH_HEADERS)
         assert r.status_code == 404
 
     def test_customers_list(self):
@@ -245,20 +246,20 @@ class TestAPIEndpoints:
 
     def test_approve_campaign(self):
         r = client.post("/api/approve-campaign", json={
-            "reviewer_name": "Test Reviewer",
-            "budget_bdt": 10000,
+            "admin_user": "Test Reviewer",
+            "allocated_budget": 10000,
             "notes": "Automated test approval",
-        })
+        }, headers=AUTH_HEADERS)
         assert r.status_code == 200
         data = r.json()
         assert data["approved"] is True
-        assert data["reviewer_name"] == "Test Reviewer"
+        assert data["admin_user"] == "Test Reviewer"
         assert "timestamp" in data
         assert "campaign_id" in data
 
     def test_approve_campaign_requires_name(self):
         r = client.post("/api/approve-campaign", json={
-            "reviewer_name": "",
-            "budget_bdt": 10000,
-        })
+            "admin_user": "",
+            "allocated_budget": 10000,
+        }, headers=AUTH_HEADERS)
         assert r.status_code == 422  # Pydantic validation error
