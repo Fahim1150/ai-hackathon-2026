@@ -23,12 +23,12 @@
       "auuc": {
         "mean": 0.1413,
         "ci_lower": 0.09415,
-        "ci_upper": 0.19555
+        "ci_upper": 0.1956
       },
       "qini": {
-        "mean": 50.7449,
-        "ci_lower": 31.139450000000004,
-        "ci_upper": 72.80295
+        "mean": 50.74545,
+        "ci_lower": 31.137900000000002,
+        "ci_upper": 72.8042
       },
       "uplift_at_10pct": {
         "mean": 0.2783,
@@ -39,16 +39,16 @@
     "s_learner": {
       "auuc": {
         "mean": 0.14784999999999998,
-        "ci_lower": 0.0907,
-        "ci_upper": 0.20279999999999998
+        "ci_lower": 0.09065000000000001,
+        "ci_upper": 0.2028
       },
       "qini": {
-        "mean": 49.6638,
-        "ci_lower": 29.342550000000003,
-        "ci_upper": 72.06585
+        "mean": 49.666,
+        "ci_lower": 29.34915,
+        "ci_upper": 72.0536
       },
       "uplift_at_10pct": {
-        "mean": 0.3407,
+        "mean": 0.34065,
         "ci_lower": 0.2272,
         "ci_upper": 0.46325
       }
@@ -78,13 +78,7 @@
     "incremental_policy_gain": 0.05555,
     "policy_vs_mass_blast_verdict": "Mass Blast outperforms ActivateAI (tuning required)"
   },
-  "sensitivity": {
-    "original_ate": 0.0538,
-    "adjusted_ate_with_confounding": 0.0338,
-    "confounder_strength": 0.2,
-    "is_robust": true,
-    "robustness_threshold_strength": 0.53825
-  },
+  "sensitivity": {},
   "fairness": {
     "lifecycle_stage": {
       "groups": {
