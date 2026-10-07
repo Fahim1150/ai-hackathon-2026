@@ -162,6 +162,8 @@ class ActivateAIEngine:
         print(f"✅ Trained T1 on {mask_t1.sum()} treated rows")
         print(f"✅ Trained T0 on {mask_t0.sum()} control rows")
         print("✅ Trained S-Learner, Propensity, and Treatment models")
+        
+        self._explainer = shap.TreeExplainer(self.model_t1)
         return self
 
     # ----- Prediction -----
