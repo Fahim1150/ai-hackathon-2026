@@ -18,13 +18,6 @@ upay ActivateAI was engineered explicitly to solve the mandate of AI DEV FEST 20
 
 Instead of burning marketing budgets on mass SMS blasts, ActivateAI utilizes a full stack causal machine learning pipeline. It mathematically isolates "Persuadables" (users who will only transact if incentivized) while suppressing "Sure Things" (users who will transact anyway) and "Lost Causes". This precision guarantees the highest Incremental Monthly Active Users (MAU) per budget dollar spent, establishing a sticky 30-day utility habit.
 
-## Product Interface
-*(Ensure screenshots are saved in docs/assets/ before final submission)*
-| Executive ROI Simulator | Customer 360 & SHAP Explainability |
-| :---: | :---: |
-| <img src="docs/assets/roi_simulator.png" width="400"/> | <img src="docs/assets/shap_explainability.png" width="400"/> |
-| *Interactive budget optimization vs Mass SMS baseline* | *Individual uplift scores with Gemini-generated bilingual copy* |
-
 ## The Problem
 Mobile financial services face three critical growth hurdles:
 * **High User Dormancy:** A significant portion of the user base downloads the app but fails to form a lasting habit.
