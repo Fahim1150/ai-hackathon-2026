@@ -1,125 +1,77 @@
-# upay ActivateAI 🚀
+# upay ActivateAI: Dormant to Active Lifecycle & Incremental Uplift Engine
 
-**Dormant-to-Active Lifecycle, Incremental Uplift & Gemini Copilot Engine**  
-*Built for AI DEV FEST 2026 – AI Hackathon (Track 04: Growth & Campaign Intelligence / DIU CPC × upay)*
+## Executive Summary
+While competitors dominate P2P transfers, upay ActivateAI leverages causal Machine Learning to reactivate dormant upay users through solo utility transactions (e.g., bill pay, mobile recharge, toll payments, and super shop purchases). By shifting from reactive mass blasts to precision causal targeting, this engine identifies the exact users who will adopt a 30-day repeat habit solely because of an incentive, maximizing Monthly Active Users (MAU) under a fixed marketing budget.
 
-🌐 **Live Demo:** [upay ActivateAI Dashboard](https://ai-hackathon-2026-ruddy.vercel.app/)
+## The Problem
+Mobile financial services face three critical growth hurdles:
+* **High User Dormancy:** A significant portion of the user base downloads the app but fails to form a lasting habit.
+* **Immediate Cash Out Behavior:** Users frequently cash out their entire balance on payday, leaving no float for utility transactions.
+* **Wasted Campaign Budgets:** Traditional mass SMS blasts suffer from heavy cashback waste, rewarding users who would have transacted anyway (Sure Things) while annoying those who will never convert (Lost Causes).
 
----
+## The Solution
+ActivateAI is a full stack Machine Learning pipeline that solves the dormancy crisis through causal inference. The platform identifies "Persuadables" (users who activate strictly because of a promotion), strictly limits offer fatigue, and dynamically optimizes budget allocation. Once a campaign is optimized, the platform utilizes the Gemini 2.5 Flash API to generate SHAP grounded, bilingual SMS nudges (Bangla and English) tailored to the unique behavioral drivers of each user.
 
-## 📌 1. Project Overview
+## Key Innovations
+Our platform integrates rigorous statistical validation, strict data governance, and scalable MLOps, directly addressing advanced hackathon criteria:
 
-**The Business Problem:**  
-In Bangladesh's MFS (Mobile Financial Services) sector, competitors heavily dominate the peer-to-peer (P2P) "Send Money" market due to network effects. Consequently, many registered **upay** users become dormant or cash out 100% of their salary on payday. 
+* **Causal ML Rigor:** Implements advanced T-Learner and S-Learner meta-learners alongside Propensity Baselines. Robustness is verified through 100-iteration bootstrap confidence intervals, Doubly Robust Off-Policy Evaluation (OPE), and unobserved confounder Sensitivity Analysis.
+* **Deterministic Knapsack Optimizer:** Replaces static allocations with a dynamic pricing algorithm. It dynamically markdowns offer costs to the minimum required tier to cross the uplift threshold, maximizing Incremental MAU per budget dollar.
+* **Scalability & MLOps:** Production ready architecture featuring a dedicated Model Registry, Population Stability Index (PSI) Data Drift Monitoring, and a governed Data Ingestion API that hashes identifiers and strips PII before batch inference.
+* **Security & Responsible AI:** Enforces human-in-the-loop campaign oversight via a persistent SQLite Approval Ledger. The backend is hardened with Role-Based Access Control (RBAC), strict CORS origins, and rate limiting to prevent API abuse.
 
-**The Strategy:**  
-"Solo-utility" transactions (Utility Bill Pay, Mobile Recharge, Super Shop QR, DPS savings) do **not** require the recipient to be an active upay user. By building habits around these specific features, we can bypass the competitor's network effect.
+## Architecture Stack
+* **Backend:** FastAPI, Python 3, LightGBM, SHAP, `google-genai`, SQLite, Pytest
+* **Frontend:** React, Vite, Tailwind CSS, Recharts, Lucide Icons
 
-**The Solution:**  
-**upay ActivateAI** is an end-to-end intelligence engine that maximizes Monthly Active Users (MAU) under a fixed marketing budget. Instead of predicting *who will transact* (which wastes budget on "Sure Things"), it uses **Incremental Uplift Modeling** (T-Learner LightGBM) to predict *who will activate SPECIFICALLY because of the offer* (Persuadables). It then uses **Gemini 2.5 Flash** to generate highly personalized, bilingual SMS nudges grounded in SHAP explainability drivers.
+## Local Setup Instructions
+The following instructions are tailored for a macOS zsh environment.
 
----
+### 1. Clone & Environment Setup
+```zsh
+# Navigate to your workspace
+cd /path/to/ai-hackathon-2026
 
-## ✨ 2. Core Features (The 4-Tab Dashboard)
-
-1. **📊 Dormancy Funnel & MAU Growth Simulator**  
-   Interactive sandbox for Growth Managers. Adjust the Reactivation Budget and Fatigue Caps to instantly simulate expected MAU growth. Compares the AI's uplift-targeted allocation against a traditional "Mass Promo Blast" baseline. Includes **Gemini-generated Experiment Intelligence** to recommend next A/B tests.
-
-2. **📈 Solo-Utility Habit & Uplift Explorer**  
-   Visualizes the 4 Uplift Quadrants (*Persuadables*, *Sure Things*, *Lost Causes*, *Sleeping Dogs*). Maps the optimal solo-utility offer (Recharge, Bill Pay, etc.) based on historical affinity and analyzes uplift responsiveness across different lifecycle stages (e.g., *Payday Cash-Outer* vs *One-Hit Wonder*).
-
-3. **🎯 Customer 360, SHAP & Gemini Copywriter**  
-   Drill down into individual synthetic profiles. Displays the precise **SHAP (SHapley Additive exPlanations)** drivers for why a user scored a specific uplift. Leverages **Gemini 2.5 Flash** to instantly draft English and Bangla SMS copy customized to the user's dormancy stage and SHAP drivers.
-
-4. **🛡️ Responsible AI & Human Oversight**  
-   Enforces strict guardrails. Includes a Fairness Audit across wallet types (Salary/Primary/Remittance) and lifecycle stages. Enforces a **Human Reviewer** sign-off gate before any campaign can transition from draft to approved.
-
----
-
-## 🛠️ 3. Technology Stack
-
-*   **Data Science & ML:** Python 3.13, Pandas, Scikit-learn, LightGBM, SHAP, SciPy.
-*   **Backend API:** FastAPI, Uvicorn, Pydantic, Pytest.
-*   **Generative AI:** Official `google-genai` SDK (Gemini 2.5 Flash) with strict JSON Structured Outputs.
-*   **Frontend UI:** React 18, Vite, Tailwind CSS v4, Recharts, Lucide-React.
-*   **Data:** 100% Synthetic data generated in-memory (No real PII).
-
----
-
-## 🚦 4. Strict Architecture Guardrails
-
-This project strictly adheres to 7 core Responsible AI guardrails (enforced via `AGENTS.md`):
-1. **Separation of Concerns:** Data prep, ML inference, and API serving are strictly isolated.
-2. **Deterministic Targeting:** Budget caps, offer eligibility, and uplift cutoffs are hard-coded business rules (never LLM-driven).
-3. **No Financial Decisions in LLMs:** Gemini is used *strictly* as a translation and copywriting engine based on deterministic SHAP inputs.
-4. **Traceability:** Every recommendation requires top-3 SHAP attributions.
-5. **Human-in-the-Loop:** No campaign launches without human approval logs (Reviewer Name, Timestamp, Budget).
-6. **Deterministic Fallback:** If the Gemini API key is missing or the network is offline, the system gracefully degrades to a template-based fallback (marked as `Offline Deterministic Fallback`) without crashing.
-7. **Train/Test Isolation:** Strictly enforced zero `customer_id` overlap between training and inference sets.
-
----
-
-## ⚙️ 5. Installation, Deployment & Setup
-
-We intentionally ignore heavy machine learning models (`*.joblib`) and large data files (`data/*.csv`) in our `.gitignore` to keep the repository fast and secure. 
-
-Depending on your goal, choose **one** of the 3 deployment paths below:
-
-### Path A: Docker (Recommended for Teammates & Judges)
-Docker will automatically generate the 10,000 synthetic users, train the LightGBM models, and spin up both servers inside containers. You don't need to worry about missing files!
-
-```bash
-git clone https://github.com/Fahim1150/ai-hackathon-2026.git
-cd ai-hackathon-2026
-
-# Set up environment variables
-cp .env.example .env
-# Add your GEMINI_API_KEY to .env (If empty, it falls back to deterministic offline templates)
-
-# Build and run the entire stack
-docker-compose up --build
-```
-👉 Access the dashboard at: **http://localhost:5173**
-
-### Path B: 1-Click Vercel (For Public Web Hosting)
-We configured the API to run as Serverless Functions and pre-committed the lightweight inference results.
-1. Go to [Vercel](https://vercel.com/) and click **Add New Project**.
-2. Import this GitHub repository.
-3. Vercel will automatically read `vercel.json` and deploy both the React frontend and the Python backend on the same domain for free.
-
-### Path C: Manual Local Run (For Active Development)
-If you are developing locally, you must manually run the ML pipelines first because the heavy model files are hidden by `.gitignore`.
-
-```bash
-# 1. Setup Virtual Environment
+# Create and activate a Python virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
-pip install pandas numpy scikit-learn lightgbm shap scipy fastapi "uvicorn[standard]" pytest httpx google-genai pydantic python-dotenv
 
-# 2. Generate Data & Train Models (Crucial Step!)
-python backend/data_generator.py
-python backend/ml_engine.py
+# Install backend dependencies
+pip install -r backend/requirements.txt
+```
 
-# 3. Run FastAPI Backend (Terminal 1)
-uvicorn backend.main:app --host 0.0.0.0 --port 8000
+### 2. Environment Variables
+Create a `.env` file in the root directory and add your Gemini API key:
+```zsh
+echo "GEMINI_API_KEY=your_api_key_here" > .env
+```
+*(Note: The system features a deterministic offline fallback if the API key is omitted.)*
 
-# 4. Run React Frontend (Terminal 2)
+### 3. Run Test Suite
+Verify the backend integrity and security constraints:
+```zsh
+# Run pytest on the backend
+export PYTHONPATH=.
+python -m pytest
+```
+
+### 4. Start Development Servers
+You will need two terminal windows to run the frontend and backend concurrently.
+
+**Terminal 1 (Backend):**
+```zsh
+source .venv/bin/activate
+export PYTHONPATH=.
+uvicorn backend.main:app --reload --port 8000
+```
+
+**Terminal 2 (Frontend):**
+```zsh
 cd frontend
 npm install
-npm run dev -- --host 0.0.0.0 --port 5173
+npm run dev
 ```
+Navigate to `http://localhost:5173` in your browser to view the application.
 
----
-
-## 🧪 6. Testing
-
-The backend includes a 25-test Pytest suite (run `python backend/data_generator.py` first) that verifies Train/Test isolation, uplift score bounds, budget constraint adherence, Gemini fallback resilience, and endpoint health.
-
-```bash
-source .venv/bin/activate
-python -m pytest backend/test_app.py -v
-```
-
----
-
-*Designed for the upay Growth & Campaign Intelligence Track.*
+## Compliance Disclaimer
+**Note:** All data used in the training, evaluation, and demonstration of upay ActivateAI is strictly synthetic. No real customer data, financial records, or Personally Identifiable Information (PII) is utilized in this repository, ensuring full adherence to hackathon privacy guidelines and ethical AI standards.
