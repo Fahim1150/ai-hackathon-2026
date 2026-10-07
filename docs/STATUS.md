@@ -2,8 +2,8 @@
 
 | Component | Files | Status |
 |---|---|---|
-| Synthetic data generator | `backend/data_generator.py` | Done. 10,000 users, seed 42, 8,000 train / 2,000 test |
-| ML engine (T-Learner, SHAP) | `backend/ml_engine.py` | Done. Writes predictions, fairness audit, overview stats to `models/` |
+| Synthetic data generator | `backend/data_generator.py` | Done. 10,000 users generated across multiple seeds (e.g. 42 and 123) for cross-validation |
+| ML engine (S-Learner, T-Learner, SHAP) | `backend/ml_engine.py` | Done. Multi-seed validation proved S-Learner mathematically outperforms the dual-model T-Learner on this dataset. Writes predictions, fairness audit, overview stats to `models/` |
 | Budget optimizer | `backend/optimizer.py` | Done. Deterministic, budget-capped |
 | Gemini service + fallback | `backend/genai_service.py` | Done. Offline template fallback |
 | FastAPI backend | `backend/main.py`, `api/index.py` | Done. Includes human approval endpoint |

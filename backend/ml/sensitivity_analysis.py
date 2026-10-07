@@ -59,7 +59,7 @@ def run_sensitivity_analysis(df: pd.DataFrame, treatment_col: str, outcome_col: 
         "original_ate": float(np.round(original_ate, 4)),
         "adjusted_ate_with_confounding": float(np.round(adjusted_ate, 4)),
         "confounder_strength": confounder_strength,
-        "is_robust": adjusted_ate > 0,
+        "is_robust": bool(adjusted_ate > 0),
         "robustness_threshold_strength": float(np.round(robustness_threshold, 4))
     }
 

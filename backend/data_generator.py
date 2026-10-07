@@ -308,7 +308,7 @@ def generate(n: int = N_USERS, seed: int = SEED) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 # Train / test split and save
 # ---------------------------------------------------------------------------
-def save_splits(df: pd.DataFrame, data_dir: str = "data") -> None:
+def save_splits(df: pd.DataFrame, data_dir: str = "data", suffix: str = "", seed: int = SEED) -> None:
     """Stratified train/test split and save to CSV."""
     out = pathlib.Path(data_dir)
     out.mkdir(exist_ok=True)
@@ -319,15 +319,15 @@ def save_splits(df: pd.DataFrame, data_dir: str = "data") -> None:
     train, test = train_test_split(
         df,
         test_size=1 - TRAIN_FRAC,
-        random_state=SEED,
+        random_state=seed,
         stratify=strat_col,
     )
 
-    train.to_csv(out / "train.csv", index=False)
-    test.to_csv(out / "test.csv", index=False)
+    train.to_csv(out / f"train{suffix}.csv", index=False)
+    test.to_csv(out / f"test{suffix}.csv", index=False)
 
-    print(f"✅ Saved {len(train)} rows → {out / 'train.csv'}")
-    print(f"✅ Saved {len(test)} rows  → {out / 'test.csv'}")
+    print(f"✅ Saved {len(train)} rows → {out / f'train{suffix}.csv'}")
+    print(f"✅ Saved {len(test)} rows  → {out / f'test{suffix}.csv'}")
 
     # --- Quick sanity checks ---
     overlap = set(train["customer_id"]) & set(test["customer_id"])
@@ -337,25 +337,17 @@ def save_splits(df: pd.DataFrame, data_dir: str = "data") -> None:
     assert len(train) + len(test) == len(df), "❌ Row count mismatch"
     print(f"✅ Total: {len(train)} + {len(test)} = {len(df)}")
 
-    # Treatment balance
-    for name, split in [("train", train), ("test", test)]:
-        t_rate = split["treatment"].mean()
-        print(f"   {name}: treatment rate = {t_rate:.3f}")
-
-    # Lifecycle stage distribution
-    print("\n📊 Lifecycle stage distribution:")
-    print(df["lifecycle_stage"].value_counts().to_string())
-
-    # Activation rates by treatment (planted pattern check)
-    print("\n📊 Activation rate by treatment:")
-    print(df.groupby("treatment")["activated_30d"].mean().to_string())
-
 
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    print("🔧 Generating 10,000 synthetic upay user records...")
-    df = generate()
-    save_splits(df)
+    print("🔧 Generating synthetic records for Seed 42...")
+    df_42 = generate(seed=42)
+    save_splits(df_42, seed=42)
+    
+    print("\n🔧 Generating synthetic records for Seed 123...")
+    df_123 = generate(seed=123)
+    save_splits(df_123, suffix="_123", seed=123)
+
     print("\n🎯 Done. Ready for Phase 3 (ML Engine).")

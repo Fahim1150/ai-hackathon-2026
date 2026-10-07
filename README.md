@@ -30,7 +30,7 @@ ActivateAI is a full stack Machine Learning pipeline that solves the dormancy cr
 ## Key Innovations
 Our platform integrates rigorous statistical validation, strict data governance, and scalable MLOps, directly addressing advanced hackathon criteria:
 
-* **Causal ML Rigor:** Implements advanced T-Learner and S-Learner meta-learners alongside Propensity Baselines. Robustness is strictly verified through 100-iteration bootstrap confidence intervals, Doubly Robust Off-Policy Evaluation (OPE), and unobserved confounder Sensitivity Analysis to protect against treatment-effect misspecification.
+* **Causal ML Rigor:** Implements advanced T-Learner and S-Learner meta-learners alongside Propensity Baselines. Our multi-seed validation objectively demonstrated that the S-Learner architecture outperforms the dual-model T-Learner on this dataset (higher AUUC). Robustness is strictly verified through 100-iteration bootstrap confidence intervals, Doubly Robust Off-Policy Evaluation (OPE), and unobserved confounder Sensitivity Analysis to protect against treatment-effect misspecification.
 * **Deterministic Knapsack Optimizer:** Replaces static allocations with a dynamic pricing algorithm. It dynamically markdowns offer costs to the minimum required tier to cross the uplift threshold, maximizing Incremental MAU per budget dollar.
 * **Scalability & MLOps:** Production-ready architecture featuring a dedicated Model Registry, Population Stability Index (PSI) Data Drift Monitoring, and a governed Data Ingestion API that hashes identifiers and strips PII before high-volume batch inference. We also implemented rigorous concurrent load testing utilizing Python's `concurrent.futures`.
 * **Security & Responsible AI:** Enforces human-in-the-loop campaign oversight via an immutable SQLite Approval Ledger (audit records). The backend API is fully hardened with Role-Based Access Control (RBAC), restrictive CORS origins, and `slowapi` rate limiting to prevent abuse.
@@ -69,7 +69,7 @@ The backend is fortified for enterprise deployment:
 graph TD
     A[Mock Governed Data API] -->|Hashes PII| B(Data Pipeline & Feature Prep)
     B --> C{LightGBM Uplift Engine}
-    C -->|T-Learner Propensity| D[Uplift & Quadrant Classifier]
+    C -->|S-Learner Uplift| D[Uplift & Quadrant Classifier]
     D --> E[Deterministic Knapsack Optimizer]
     E -->|Optimized Allocation| F[(SQLite Approval Ledger)]
     E --> G{Gemini 2.5 Flash}

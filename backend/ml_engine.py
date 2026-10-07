@@ -414,11 +414,18 @@ def evaluate_ope_doubly_robust(scored_df: pd.DataFrame) -> dict:
     # Value of treating no one
     treat_none_value = np.mean(dr_0)
     
+    verdict = (
+        "ActivateAI outperforms Mass Blast" 
+        if policy_value > treat_all_value 
+        else "Mass Blast outperforms ActivateAI (tuning required)"
+    )
+    
     return {
         "activate_ai_policy_value": round(float(policy_value), 4),
         "mass_blast_value": round(float(treat_all_value), 4),
         "no_treatment_value": round(float(treat_none_value), 4),
         "incremental_policy_gain": round(float(policy_value - treat_none_value), 4),
+        "policy_vs_mass_blast_verdict": verdict,
     }
 
 
@@ -443,73 +450,101 @@ def build_overview_stats(scored_df: pd.DataFrame, fairness: dict, val_metrics: d
     }
 
 
+def _aggregate_metrics(results_list: list) -> dict:
+    """Average a list of dictionary results with identical numerical schema."""
+    if not results_list: return {}
+    agg = {}
+    for key in results_list[0].keys():
+        if isinstance(results_list[0][key], dict):
+            agg[key] = _aggregate_metrics([r[key] for r in results_list])
+        elif isinstance(results_list[0][key], (bool, np.bool_)):
+            agg[key] = bool(results_list[0][key])
+        elif isinstance(results_list[0][key], (int, float, np.number)):
+            agg[key] = float(np.mean([r[key] for r in results_list]))
+        else:
+            agg[key] = results_list[0][key] # fallback for strings like verdict
+    return agg
+
+
 # ---------------------------------------------------------------------------
 # CLI entry point
 # ---------------------------------------------------------------------------
 def main():
     print("=" * 60)
-    print("upay ActivateAI — ML Engine")
+    print("upay ActivateAI — ML Engine (Multi-Seed Evaluation)")
     print("=" * 60)
 
-    # 1. Train
-    engine = ActivateAIEngine()
-    engine.train("data/train.csv")
+    seeds = [("", 42), ("_123", 123)]
     
-    # Trigger data drift monitor right after training on the new batch
-    try:
-        from backend.pipeline.drift_monitor import run_drift_check
-        run_drift_check("data/test.csv", "data/train.csv", model_version="v2.0.0")
-    except ImportError:
-        pass
-
-    # 2. Score test set
-    scored = engine.predict("data/test.csv")
-
-    # 3. Save models
-    engine.save("models")
-
-    # 4. Save scored predictions
-    MODELS_DIR.mkdir(exist_ok=True)
-    scored.to_csv(MODELS_DIR / "test_predictions.csv", index=False)
-    print(f"✅ Predictions saved to {MODELS_DIR / 'test_predictions.csv'}")
-
-    # 5. Fairness audit
-    fairness = ActivateAIEngine.fairness_audit(scored)
-    with open(MODELS_DIR / "fairness_audit.json", "w") as f:
-        json.dump(fairness, f, indent=2)
-    print(f"✅ Fairness audit saved to {MODELS_DIR / 'fairness_audit.json'}")
-
-    # 6. Validation metrics & Bootstrapping
-    val_metrics = compute_validation_metrics(scored)
-
-    # 7. Doubly Robust Off-Policy Evaluation
-    ope = evaluate_ope_doubly_robust(scored)
+    all_val_metrics = []
+    all_ope = []
+    all_sensitivity = []
     
-    # 8. Causal Sensitivity Analysis
-    try:
-        from backend.ml.sensitivity_analysis import run_sensitivity_analysis
-        sensitivity = run_sensitivity_analysis(scored, "treatment", "activated_30d", confounder_strength=0.2)
-    except ImportError:
-        sensitivity = {}
+    last_scored = None
+    last_fairness = None
+    
+    for suffix, seed in seeds:
+        print(f"\n--- Running Seed {seed} ---")
+        engine = ActivateAIEngine()
+        engine.train(f"data/train{suffix}.csv")
+        
+        scored = engine.predict(f"data/test{suffix}.csv")
+        last_scored = scored
+        
+        # Save model only for the primary seed
+        if suffix == "":
+            engine.save("models")
+            MODELS_DIR.mkdir(exist_ok=True)
+            scored.to_csv(MODELS_DIR / "test_predictions.csv", index=False)
+            last_fairness = ActivateAIEngine.fairness_audit(scored)
+            with open(MODELS_DIR / "fairness_audit.json", "w") as f:
+                json.dump(last_fairness, f, indent=2)
+                
+            try:
+                from backend.pipeline.drift_monitor import run_drift_check
+                run_drift_check(f"data/test{suffix}.csv", f"data/train{suffix}.csv", model_version="v2.0.0")
+            except ImportError:
+                pass
 
-    # 9. Overview stats
-    overview = build_overview_stats(scored, fairness, val_metrics, ope, sensitivity)
+        val_metrics = compute_validation_metrics(scored)
+        all_val_metrics.append(val_metrics)
+
+        ope = evaluate_ope_doubly_robust(scored)
+        all_ope.append(ope)
+        
+        try:
+            from backend.ml.sensitivity_analysis import run_sensitivity_analysis
+            sens = run_sensitivity_analysis(scored, "treatment", "activated_30d", confounder_strength=0.2)
+            all_sensitivity.append(sens)
+        except ImportError:
+            all_sensitivity.append({})
+
+    # Aggregate across seeds
+    print("\naggregating cross-seed results...")
+    agg_val_metrics = _aggregate_metrics(all_val_metrics)
+    agg_ope = _aggregate_metrics(all_ope)
+    agg_sens = _aggregate_metrics(all_sensitivity)
+
+    # Overview stats
+    overview = build_overview_stats(last_scored, last_fairness, agg_val_metrics, agg_ope, agg_sens)
     with open(MODELS_DIR / "overview_stats.json", "w") as f:
         json.dump(overview, f, indent=2)
-    print(f"✅ Overview stats saved to {MODELS_DIR / 'overview_stats.json'}")
+    print(f"✅ Multi-seed overview stats saved to {MODELS_DIR / 'overview_stats.json'}")
 
-    # 9. Print summary
     print("\n" + "=" * 60)
-    print("📊 VALIDATION METRICS (95% CI via Bootstrap)")
+    print("📊 VALIDATION METRICS (95% CI via Bootstrap, Cross-Seed Average)")
     print("=" * 60)
-    for model, metrics in val_metrics.items():
+    for model, metrics in agg_val_metrics.items():
         print(f"\n{model.upper()}:")
         for k, v in metrics.items():
             print(f"  {k}: {v['mean']:.4f} ({v['ci_lower']:.4f} - {v['ci_upper']:.4f})")
 
-    print("\n📊 OFF-POLICY EVALUATION (Doubly Robust)")
-    for k, v in ope.items():
-        print(f"  {k}: {v:.4f}")
+    print("\n📊 OFF-POLICY EVALUATION (Doubly Robust, Cross-Seed Average)")
+    for k, v in agg_ope.items():
+        if isinstance(v, str):
+            print(f"  {k}: {v}")
+        else:
+            print(f"  {k}: {v:.4f}")
 
     print("\n📊 UPLIFT QUADRANT DISTRIBUTION")
     for q, c in scored["uplift_quadrant"].value_counts().items():
@@ -521,7 +556,7 @@ def main():
         print(f"  {q}: mean_uplift={g['uplift_score'].mean():.4f}, n={len(g)}")
 
     print("\n📊 FAIRNESS AUDIT")
-    for group_col, data in fairness.items():
+    for group_col, data in last_fairness.items():
         print(f"\n  {group_col} (min/max ratio: {data['min_max_persuadable_ratio']}):")
         for val, stats in data["groups"].items():
             print(f"    {val}: n={stats['count']}, mean_uplift={stats['mean_uplift']}, "
