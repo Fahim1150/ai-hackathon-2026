@@ -87,6 +87,27 @@ def optimize_reactivation_budget(
     eligible = eligible[eligible["offer_fatigue_score"] <= max_fatigue_cap]
     eligible = eligible[eligible["uplift_score"] >= min_uplift_cutoff]
     
+    # Dynamic Offer Optimization (Pricing Markdown)
+    # Calculate the minimum incentive tier (10, 15, 20 BDT) needed to maintain min_uplift_cutoff
+    # Assuming uplift scales roughly linearly with incentive value
+    def optimize_cost(row):
+        u = row["uplift_score"]
+        c = row["assigned_offer_cost_bdt"]
+        if u <= 0 or c <= 0:
+            return c
+        # Minimum fraction of the offer needed to just cross the cutoff
+        min_fraction = min_uplift_cutoff / u
+        min_cost = c * min_fraction
+        
+        # Round up to nearest valid tier (10, 15, 20)
+        if min_cost <= 10:
+            return 10.0
+        elif min_cost <= 15:
+            return 15.0
+        return float(c)
+
+    eligible["assigned_offer_cost_bdt"] = eligible.apply(optimize_cost, axis=1)
+    
     # Rank by incremental MAU efficiency
     eligible["efficiency"] = eligible["uplift_score"] / eligible["assigned_offer_cost_bdt"].clip(lower=1.0)
     eligible = eligible.sort_values("efficiency", ascending=False)

@@ -57,11 +57,41 @@ CREATE TABLE IF NOT EXISTS campaign_approvals (
 );
 """
 
+_CREATE_REGISTRY_SQL = """
+CREATE TABLE IF NOT EXISTS model_registry_logs (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    model_version   TEXT    NOT NULL,
+    feature_name    TEXT    NOT NULL,
+    drift_score     REAL    NOT NULL,
+    status          TEXT    NOT NULL,
+    timestamp       TEXT    NOT NULL
+);
+"""
 
 def init_db() -> None:
-    """Create the campaign_approvals table if it does not exist."""
+    """Create tables if they do not exist."""
     with _get_conn() as conn:
         conn.execute(_CREATE_TABLE_SQL)
+        conn.execute(_CREATE_REGISTRY_SQL)
+
+def log_model_drift(
+    model_version: str,
+    feature_name: str,
+    drift_score: float,
+    status: str
+) -> dict[str, Any]:
+    """Insert a new drift monitor log."""
+    ts = datetime.now(timezone.utc).isoformat()
+    with _get_conn() as conn:
+        conn.execute(
+            """
+            INSERT INTO model_registry_logs
+                (model_version, feature_name, drift_score, status, timestamp)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (model_version, feature_name, drift_score, status, ts),
+        )
+    return {"status": "logged", "timestamp": ts}
 
 
 # ---------------------------------------------------------------------------

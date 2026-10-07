@@ -171,6 +171,38 @@ def predict_batch(req: BatchPredictRequest, request: Request):
     
     return {"predictions": scored_df.to_dict(orient="records")}
 
+import hashlib
+
+@app.post("/api/ingest/governed-data", dependencies=[Depends(require_api_key)])
+@limiter.limit("60/minute")
+def ingest_governed_data(req: BatchPredictRequest, request: Request):
+    """
+    Data Governance Gateway.
+    Simulates ingesting raw production data, stripping PII, hashing identifiers,
+    and returning a sanitized schema ready for the batch inference pipeline.
+    """
+    raw_df = pd.DataFrame(req.customers)
+    if raw_df.empty:
+        return {"status": "success", "sanitized_records": 0, "data": []}
+        
+    # PII Stripping Guardrails
+    pii_columns = ["customer_name", "phone_number", "national_id", "email", "address", "gps_location"]
+    sanitized_df = raw_df.drop(columns=[c for c in pii_columns if c in raw_df.columns], errors='ignore')
+    
+    # One-way hashing for identifiers
+    if "customer_id" in sanitized_df.columns:
+        sanitized_df["customer_id"] = sanitized_df["customer_id"].apply(
+            lambda x: hashlib.sha256(str(x).encode()).hexdigest()[:16]
+        )
+        
+    # Forward the sanitized payload to the batch prediction logic internally if needed,
+    # or just return the clean governed payload to demonstrate the ETL pipeline.
+    
+    return {
+        "status": "success", 
+        "sanitized_records": len(sanitized_df),
+        "data": sanitized_df.to_dict(orient="records")
+    }
 
 @app.get("/api/health")
 def health():
