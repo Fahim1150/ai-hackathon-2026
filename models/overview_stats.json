@@ -1,81 +1,89 @@
 {
   "total_test_users": 2000,
   "funnel": {
-    "At-Risk Churner": 692,
-    "Payday Cash-Outer": 502,
-    "Sign-Up Drop-off": 407,
-    "One-Hit Wonder": 399
+    "At-Risk Churner": 673,
+    "Payday Cash-Outer": 503,
+    "One-Hit Wonder": 418,
+    "Sign-Up Drop-off": 406
   },
   "uplift_quadrant_distribution": {
-    "Lost Cause": 1004,
-    "Persuadable": 593,
-    "Sleeping Dog": 368,
-    "Sure Thing": 35
+    "Lost Cause": 942,
+    "Persuadable": 582,
+    "Sleeping Dog": 445,
+    "Sure Thing": 31
   },
   "offer_distribution": {
-    "Zero-Fee Bill Pay + 30 BDT Cash Reward": 603,
-    "20 BDT Recharge Bonus": 570,
-    "10% Super Shop QR Cash Reward": 462,
-    "Zero-Fee UCB ATM + Toll Pass Offer": 365
+    "Zero-Fee Bill Pay + 30 BDT Cash Reward": 613,
+    "20 BDT Recharge Bonus": 581,
+    "10% Super Shop QR Cash Reward": 438,
+    "Zero-Fee UCB ATM + Toll Pass Offer": 368
   },
   "validation_metrics": {
     "t_learner": {
       "auuc": {
-        "mean": 0.1608,
-        "ci_lower": 0.1167,
-        "ci_upper": 0.2134
+        "mean": 0.1413,
+        "ci_lower": 0.09415,
+        "ci_upper": 0.19555
       },
       "qini": {
-        "mean": 59.6465,
-        "ci_lower": 39.5491,
-        "ci_upper": 81.8973
+        "mean": 50.7449,
+        "ci_lower": 31.139450000000004,
+        "ci_upper": 72.80295
       },
       "uplift_at_10pct": {
-        "mean": 0.2876,
-        "ci_lower": 0.1684,
-        "ci_upper": 0.3917
+        "mean": 0.2783,
+        "ci_lower": 0.16599999999999998,
+        "ci_upper": 0.383
       }
     },
     "s_learner": {
       "auuc": {
-        "mean": 0.1663,
-        "ci_lower": 0.1144,
-        "ci_upper": 0.221
+        "mean": 0.14784999999999998,
+        "ci_lower": 0.0907,
+        "ci_upper": 0.20279999999999998
       },
       "qini": {
-        "mean": 62.6681,
-        "ci_lower": 42.7336,
-        "ci_upper": 84.4785
+        "mean": 49.6638,
+        "ci_lower": 29.342550000000003,
+        "ci_upper": 72.06585
       },
       "uplift_at_10pct": {
-        "mean": 0.3245,
-        "ci_lower": 0.2028,
-        "ci_upper": 0.4597
+        "mean": 0.3407,
+        "ci_lower": 0.2272,
+        "ci_upper": 0.46325
       }
     },
     "random": {
       "auuc": {
-        "mean": 0.0724,
-        "ci_lower": 0.0279,
-        "ci_upper": 0.1117
+        "mean": 0.0538,
+        "ci_lower": 0.0078000000000000005,
+        "ci_upper": 0.09864999999999999
       },
       "qini": {
-        "mean": 36.3718,
-        "ci_lower": 17.9406,
-        "ci_upper": 53.0995
+        "mean": 26.77205,
+        "ci_lower": 8.917,
+        "ci_upper": 45.25665
       },
       "uplift_at_10pct": {
-        "mean": 0.0778,
-        "ci_lower": -0.0178,
-        "ci_upper": 0.1721
+        "mean": 0.0573,
+        "ci_lower": -0.03885,
+        "ci_upper": 0.1533
       }
     }
   },
   "ope_doubly_robust": {
-    "activate_ai_policy_value": 0.1747,
-    "mass_blast_value": 0.1759,
-    "no_treatment_value": 0.1088,
-    "incremental_policy_gain": 0.066
+    "activate_ai_policy_value": 0.1678,
+    "mass_blast_value": 0.1609,
+    "no_treatment_value": 0.1123,
+    "incremental_policy_gain": 0.05555,
+    "policy_vs_mass_blast_verdict": "Mass Blast outperforms ActivateAI (tuning required)"
+  },
+  "sensitivity": {
+    "original_ate": 0.0538,
+    "adjusted_ate_with_confounding": 0.0338,
+    "confounder_strength": 0.2,
+    "is_robust": true,
+    "robustness_threshold_strength": 0.53825
   },
   "fairness": {
     "lifecycle_stage": {
