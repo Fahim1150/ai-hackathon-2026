@@ -44,7 +44,11 @@ export default function UpliftExplorer() {
           <div className="flex flex-wrap gap-6 justify-center">
             {Object.entries(data.ope_doubly_robust).map(([k, v]) => (
               <div key={k} className="text-center">
-                <p className="text-lg font-bold text-emerald-300">{(v * 100).toFixed(2)}%</p>
+                {typeof v === 'number' ? (
+                  <p className="text-lg font-bold text-emerald-300">{(v * 100).toFixed(2)}%</p>
+                ) : (
+                  <p className="text-sm font-bold text-emerald-300 mt-1 max-w-[200px] leading-tight">{v}</p>
+                )}
                 <p className="text-xs text-slate-400">{k.replace(/_/g, ' ').toUpperCase()}</p>
               </div>
             ))}
